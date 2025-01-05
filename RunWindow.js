@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SERVER_URL from '../config';
 import { useGraphManager } from './GraphManager';
 import { convertFlowToJson } from './JsonUtils';
@@ -6,9 +6,10 @@ import ConfigManager from '../ConfigManager';
 
 function RunWindow({ onClose }) {
     const [responseMessage, setResponseMessage] = useState('');
-    const [running, setRunning] = useState(false);
+    const [isRunning, setIsRunning] = useState(false);
     const { username, llmModel, apiKey } = ConfigManager.getSettings();
     const { nodes, nodeIdCounter } = useGraphManager();
+     const isPollingRef = useRef(false)
 
     const saveGraphData = async () => {
         try {
@@ -23,8 +24,8 @@ function RunWindow({ onClose }) {
                 throw new Error('Failed to save graph data on the server.');
             }
 
-            console.log('Graph data successfully saved to server.');
-            setResponseMessage(prev => prev + '\nGraph data successfully saved to server.');
+            console.log('Graph data successfully saved to server.\n');
+            setResponseMessage(prev => prev + '\nGraph data successfully saved to server.\n');
         } catch (error) {
             console.error('Error saving graph data:', error);
             setResponseMessage(prev => prev + '\nError saving graph data: ' + error.message);
@@ -32,16 +33,17 @@ function RunWindow({ onClose }) {
         }
     };
 
-    const handleRun = async () => {
-        if (running) return;
-        setRunning(true);
+     const handleRun = async () => {
+        if (isRunning) return;
+        setIsRunning(true)
         setResponseMessage('');
+
 
         try {
             await saveGraphData();
 
             console.log("Attempting to send request to Flask server...");
-            const response = await fetch(`${SERVER_URL}/run/${encodeURIComponent(username)}`, {
+             const response = await fetch(`${SERVER_URL}/run/${encodeURIComponent(username)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -65,6 +67,14 @@ function RunWindow({ onClose }) {
                 if (value) {
                     const chunk = decoder.decode(value, { stream: !done });
                     console.log("Received chunk:", chunk);
+                    try{
+                         const parsed = JSON.parse(chunk.replace("data: ", "").trim());
+                          if (parsed.status){
+                            setIsRunning(false)
+                            }
+                    }catch(e){
+
+                    }
                     setResponseMessage(prev => prev + chunk);
                 }
             }
@@ -72,72 +82,61 @@ function RunWindow({ onClose }) {
             console.error('Error:', error);
             setResponseMessage(prev => prev + '\nError: ' + error.message);
             alert('Error: ' + error.message);
+            setIsRunning(false);
+
         } finally {
-            setRunning(false);
+            if(isPollingRef.current){
+                 setIsRunning(false);
+             }
+
         }
     };
 
-    const handleStop = async () => {
-        if (!running) return;
-
-        try {
-            const response = await fetch(`${SERVER_URL}/stop/${encodeURIComponent(username)}`, {
-                method: 'POST',
-            });
-            const message = await response.text();
-            console.log(message);
-            setResponseMessage(prev => prev + '\n' + message);
-            if (response.ok) {
-                setRunning(false);
-            } else {
-                console.error('Failed to stop script:', message);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            setResponseMessage(prev => prev + '\nError: ' + error.message);
-            alert('Error: ' + error.message);
-        }
-    };
 
     useEffect(() => {
+        isPollingRef.current = true;
         const checkStatus = async () => {
             try {
-                const response = await fetch(`${SERVER_URL}/status/${encodeURIComponent(username)}`, {
-                    method: 'GET',
-                });
+                 const response = await fetch(`${SERVER_URL}/status/${encodeURIComponent(username)}`, {
+                     method: 'GET',
+                  });
                 const status = await response.json();
-                setRunning(status.running);
+                 setIsRunning(status.running);
             } catch (error) {
-                console.error('Error checking status:', error);
+                 console.error('Error checking status:', error);
             }
         };
 
         const interval = setInterval(checkStatus, 2000);
-        return () => clearInterval(interval);
+
+        return () => {
+           isPollingRef.current = false;
+           clearInterval(interval);
+        };
     }, []);
 
-    const handleCancel = async () => {
+      const handleLeave = async () => {
         onClose();
     };
 
     return (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-1000">
+         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-1000">
             <div className="bg-white p-5 rounded shadow-md w-4/5 h-4/5 flex flex-col">
                 <h2 className="text-lg font-bold mb-4">Run Script</h2>
                 <div className="flex mb-4">
-                    <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+                     <button
+                        className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2 ${isRunning ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : ''}`}
                         onClick={handleRun}
-                        disabled={running}
+                        disabled={isRunning}
                     >
                         Run
                     </button>
-                    <button
-                        className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2"
-                        onClick={handleCancel}
-                        disabled={running}
+                     <button
+                        className={`bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded mr-2 ${isRunning ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed' : ''}`}
+                        onClick={handleLeave}
+                         disabled={isRunning}
                     >
-                        Cancel
+                        Leave
                     </button>
                 </div>
                 <div className="flex-1 overflow-y-auto bg-gray-100 p-2 rounded mt-4">

@@ -162,6 +162,9 @@ export const loadJson = (setEdges, setNodes, setNodeIdCounter) => {
     try {
       const flowData = await readJsonFile(event);
       if (flowData) {
+        setNodes([]);
+        setEdges([]);
+        setNodeIdCounter(0);
         processFlowData(flowData, setEdges, setNodes, setNodeIdCounter);
       }
     } catch (error) {
