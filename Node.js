@@ -9,16 +9,20 @@ export const removePrevs = (nodes, nodeId) => {
   const nodeToRemovePrevs = nodes.find(node => node.id === nodeId);
   if (!nodeToRemovePrevs) return nodes;
 
-  nodeToRemovePrevs.prevs.forEach(prevId => {
-    const prevNode = nodes.find(node => node.id === prevId);
-    if (prevNode) {
-      prevNode.data.nexts = prevNode.data.nexts.filter(id => id !== nodeId);
-      if (prevNode.data.true_next === nodeId) prevNode.data.true_next = null;
-      if (prevNode.data.false_next === nodeId) prevNode.data.false_next = null;
-    }
-  });
-
-  nodeToRemovePrevs.prevs = [];
+  try {
+    nodeToRemovePrevs.prevs.forEach(prevId => {
+      const prevNode = nodes.find(node => node.id === prevId);
+      if (prevNode) {
+        prevNode.data.nexts = prevNode.data.nexts.filter(id => id !== nodeId);
+        if (prevNode.data.true_next === nodeId) prevNode.data.true_next = null;
+        if (prevNode.data.false_next === nodeId) prevNode.data.false_next = null;
+      }
+    });
+    nodeToRemovePrevs.prevs = [];
+  }
+  catch (error) {
+    // workaround if a node have no prevs
+  }
   return nodes;
 };
 

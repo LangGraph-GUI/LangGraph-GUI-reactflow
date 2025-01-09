@@ -1,19 +1,12 @@
 // Canvas.js
-
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ReactFlow, { MiniMap, Controls, Background, useReactFlow } from 'reactflow';
 import 'reactflow/dist/style.css';
 import Node, { addNode, deleteNode } from './Node';
 import { createEdge, deleteEdge } from './Edge';
 import { createConditionEdge, deleteConditionEdge } from './ConditionEdge';
-import { saveJson, loadJson } from './JsonUtils';
 import { useGraphManager } from './GraphManager';
-import ConfigWindow from '../ConfigWindow';
-import RunWindow from './RunWindow';
-import FileTransmit from './FileTransmit';
-
-import { useNavigate } from 'react-router-dom';
-
+import Panel from './Panel';
 const nodeTypes = { textUpdater: Node };
 
 function Canvas() {
@@ -35,7 +28,6 @@ function Canvas() {
   const [showConfig, setShowConfig] = useState(false);
   const [showRun, setShowRun] = useState(false);
 
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -134,42 +126,17 @@ function Canvas() {
     }
   }, [setEdges, edges, nodes, setNodes]);
 
-  const handleNew = () => {
-    setNodes([]);
-    setEdges([]);
-    setNodeIdCounter(1);
-  };
-
-  const handleSave = async () => {
-    await saveJson(nodes, nodeIdCounter);
-  };
-
-  const handleLoad = async () => {
-    await loadJson(setEdges, setNodes, setNodeIdCounter);
-  };
-
-  const handleRun = () => {
-    setShowRun(true);
-  };
-
-  const handleConfig = () => {
-    setShowConfig(true);
-  };
-
-   const handleUploadComplete = () => {
-     console.log('Upload complete.');
-  };
-
   return (
-    <div className="h-screen w-full">
-      <nav ref={menuBarRef} className="p-2 border-b border-gray-300 mb-2">
-        <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleNew}>New Graph</button>
-        <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleSave}>Save Graph</button>
-        <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleLoad}>Load Graph</button>
-        <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleRun}>Run Graph</button>
-        <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleConfig}>Config</button>
-        <FileTransmit onUploadComplete={handleUploadComplete} />
-      </nav>
+    <div className="h-screen w-full relative">
+      <div className="absolute z-10 w-full">
+        <Panel 
+            showConfig={showConfig} 
+            setShowConfig={setShowConfig}
+            showRun={showRun}
+            setShowRun={setShowRun}
+        />
+      </div>
+
       <div style={{ height: `${canvasHeight}px` }} className="w-full">
         <ReactFlow
           nodes={nodes}
@@ -208,8 +175,6 @@ function Canvas() {
           <button onClick={handleCloseContextMenu} className="block bg-gray-500 hover:bg-gray-700 text-white font-bold px-2 rounded">Cancel</button>
         </div>
       )}
-       {showConfig && <ConfigWindow onClose={() => setShowConfig(false)} />}
-      {showRun && <RunWindow onClose={() => setShowRun(false)} />}
     </div>
   );
 }
