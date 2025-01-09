@@ -28,6 +28,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun}) {
   };
 
   const handleLoad = async () => {
+    handleNew();
     await loadJson(setEdges, setNodes, setNodeIdCounter);
   };
 
