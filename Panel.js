@@ -1,7 +1,7 @@
 // Panel.js
 
 import React, { useState, useEffect } from 'react';
-import { convertFlowToJson, processFlowData } from './JsonUtils';
+import { convertFlowToJson, convertJsonToFlow } from './JsonUtils';
 import { saveJsonToFile, loadJsonFromFile } from './saveIO';
 import RunWindow from './RunWindow';
 import FileTransmit from './FileTransmit';
@@ -49,7 +49,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
         // Load a subGraph from redux to GraphManagerContext
         const selectedSubGraph = subGraphs.find((graph) => graph.graphName === graphName);
         if (selectedSubGraph) {
-            const processedData = processFlowData(selectedSubGraph);
+            const processedData = convertJsonToFlow(selectedSubGraph);
             if (processedData) {
                 setNodes(processedData.nodes);
                 setEdges(processedData.edges);

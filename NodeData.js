@@ -34,7 +34,7 @@ class NodeData {
     });
   }
 
-  static fromDict(data) {
+  static fromJson(data) {
     return new NodeData(data);
   }
 
@@ -54,7 +54,7 @@ class NodeData {
     };
   }
 
-  toDict() {
+  toJson() {
     const {
       uniq_id, nexts, type, name, description,
       tool, true_next, false_next,

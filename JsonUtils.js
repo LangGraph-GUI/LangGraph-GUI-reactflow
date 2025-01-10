@@ -28,7 +28,7 @@ export const convertSubGraphToJson = (subGraph) => {
     });
 
     return {
-      ...nodeData.toDict(),
+      ...nodeData.toJson(),
       ext,
     };
   });
@@ -46,10 +46,10 @@ export const convertFlowToJson = (subGraphs) => {
 }
 
 // Process flow data for a single subGraph
-export const processFlowData = (subGraphData) => {
+export const convertJsonToFlow = (subGraphData) => {
   try {
     const loadedNodes = (subGraphData.nodes || []).map((nodeData) => {
-      const node = NodeData.fromDict(nodeData);
+      const node = NodeData.fromJson(nodeData);
       return {
         ...node.toReactFlowNode(),
         position: { x: nodeData.ext.pos_x, y: nodeData.ext.pos_y },
