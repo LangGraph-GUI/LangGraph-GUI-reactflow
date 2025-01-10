@@ -1,14 +1,14 @@
 // Panel.js
 
 import React, { useState } from 'react';
-import { convertFlowToJson, convertJsonToFlow } from './JsonUtils';
+import { convertJsonToFlow } from './JsonUtils';
 import { saveJsonToFile, loadJsonFromFile } from './saveIO';
 import RunWindow from './RunWindow';
 import FileTransmit from './FileTransmit';
 import ConfigWindow from '../ConfigWindow';
 import { useGraphManager } from './GraphManager';
 import { useSelector, useDispatch } from 'react-redux';
-import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs } from '../redux/slices/subGraphSlice';
+import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs, setSubGraphs } from '../redux/slices/subGraphSlice';
 import Modal from './Modal'; 
 
 function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
@@ -94,10 +94,9 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
     const handleSaveAll = async () => {
         // Save current graph before saving all
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
+         dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
         try {
-            const flowData = convertFlowToJson(subGraphs);
-            saveJsonToFile(flowData);
+            saveJsonToFile(subGraphs);
         } catch (error) {
             console.error('Error saving JSON:', error);
             alert('Failed to save flow.');
@@ -108,13 +107,10 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
         try {
             const newSubGraphs = await loadJsonFromFile();
             if (Array.isArray(newSubGraphs)) {
-                handleNew();
-                newSubGraphs.forEach((subGraph) => {
-                    dispatch(updateSubGraph(subGraph));
-                });
-            } else {
-                alert('incorrect file form')
-            }
+                 dispatch(setSubGraphs(newSubGraphs)) // Directly set the subgraphs state
+             } else {
+                 alert('incorrect file form')
+             }
         } catch (error) {
             console.error('Error loading JSON:', error);
             alert('Failed to load flow.');
