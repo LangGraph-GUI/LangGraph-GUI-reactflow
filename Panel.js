@@ -1,7 +1,7 @@
 // Panel.js
 
 import React, { useState } from 'react';
-import { convertJsonToFlow } from './JsonUtils';
+import { convertJsonToFlow, convertSubGraphToJson } from './JsonUtils';
 import { saveJsonToFile, loadJsonFromFile } from './saveIO';
 import RunWindow from './RunWindow';
 import FileTransmit from './FileTransmit';
@@ -9,7 +9,7 @@ import ConfigWindow from '../ConfigWindow';
 import { useGraphManager } from './GraphManager';
 import { useSelector, useDispatch } from 'react-redux';
 import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs, setSubGraphs } from '../redux/slices/subGraphSlice';
-import Modal from './Modal'; 
+import Modal from './Modal';
 
 function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     const {
@@ -27,13 +27,17 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     const [currentSubGraph, setCurrentSubGraph] = useState("root");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState(null); // 'add' or 'rename'
-     const [modalInput, setModalInput] = useState("");
-
-   
+    const [modalInput, setModalInput] = useState("");
 
     const handleNew = () => {
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
-        initSubGraphs();
+        // Convert and save the current graph before switching
+        const currentSubGraphJson = convertSubGraphToJson({
+            graphName: currentSubGraph,
+            nodes: nodes,
+            serial_number: serialNumber,
+        });
+        dispatch(updateSubGraph(currentSubGraphJson));
+        dispatch(initSubGraphs());
         dispatch(updateSubGraph({ graphName: "root", nodes: [], serial_number: 1 }));
         setCurrentSubGraph("root");
         Clear();
@@ -41,7 +45,14 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
     const handleLoadSubGraph = (graphName) => {
         // Save current graph before switching
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
+         const currentSubGraphJson = convertSubGraphToJson({
+            graphName: currentSubGraph,
+            nodes: nodes,
+            serial_number: serialNumber,
+        });
+        dispatch(updateSubGraph(currentSubGraphJson));
+
+
         // Load a subGraph from redux to GraphManagerContext
         const selectedSubGraph = subGraphs.find((graph) => graph.graphName === graphName);
         if (selectedSubGraph) {
@@ -64,37 +75,48 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
 
     const handleConfirmModal = () => {
-      if(modalType === 'add'){
-         const uniqueName = modalInput.trim() === "" ? `newGraph${Date.now()}` : modalInput;
-        dispatch(addSubGraph({ graphName: uniqueName, nodes: [], serial_number: 1 }));
-      } else if (modalType === 'rename'){
-         if (currentSubGraph !== "root" && modalInput.trim() !== "") {
-            const currentGraph = subGraphs.find((graph) => graph.graphName === currentSubGraph);
-            if (currentGraph) {
-                dispatch(removeSubGraph(currentSubGraph));
-                dispatch(addSubGraph({ ...currentGraph, graphName: modalInput }));
-                setCurrentSubGraph(modalInput);
+        if (modalType === 'add') {
+            const uniqueName = modalInput.trim() === "" ? `newGraph${Date.now()}` : modalInput;
+            dispatch(addSubGraph({ graphName: uniqueName, nodes: [], serial_number: 1 }));
+        } else if (modalType === 'rename') {
+            if (currentSubGraph !== "root" && modalInput.trim() !== "") {
+                const currentGraph = subGraphs.find((graph) => graph.graphName === currentSubGraph);
+                if (currentGraph) {
+                    dispatch(removeSubGraph(currentSubGraph));
+                    dispatch(addSubGraph({ ...currentGraph, graphName: modalInput }));
+                    setCurrentSubGraph(modalInput);
+                }
             }
         }
-      }
 
         setIsModalOpen(false);
         setModalType(null);
         setModalInput("");
     };
-      
+
 
     const handleRemoveSubGraph = () => {
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
-        if (currentSubGraph !== "root") {
-            dispatch(removeSubGraph(currentSubGraph));
-            handleNew(); // Reset to root node
+        const currentSubGraphJson = convertSubGraphToJson({
+            graphName: currentSubGraph,
+            nodes: nodes,
+            serial_number: serialNumber,
+        });
+         dispatch(updateSubGraph(currentSubGraphJson));
+         if (currentSubGraph !== "root") {
+             dispatch(removeSubGraph(currentSubGraph));
+             handleNew(); // Reset to root node
         }
     };
 
     const handleSaveAll = async () => {
         // Save current graph before saving all
-         dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
+        const currentSubGraphJson = convertSubGraphToJson({
+            graphName: currentSubGraph,
+            nodes: nodes,
+            serial_number: serialNumber,
+        });
+        dispatch(updateSubGraph(currentSubGraphJson));
+
         try {
             saveJsonToFile(subGraphs);
         } catch (error) {
@@ -107,10 +129,10 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
         try {
             const newSubGraphs = await loadJsonFromFile();
             if (Array.isArray(newSubGraphs)) {
-                 dispatch(setSubGraphs(newSubGraphs)) // Directly set the subgraphs state
-             } else {
-                 alert('incorrect file form')
-             }
+                dispatch(setSubGraphs(newSubGraphs));
+            } else {
+                alert('incorrect file form')
+            }
         } catch (error) {
             console.error('Error loading JSON:', error);
             alert('Failed to load flow.');
@@ -128,7 +150,6 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     const handleUploadComplete = () => {
         console.log('Upload complete.');
     };
-
 
     return (
         <nav className="p-2 border-b border-gray-300 mb-2 bg-white z-20">
@@ -157,7 +178,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
             </button>
             {currentSubGraph !== "root" && (
                 <>
-                   <button
+                    <button
                         className="ml-2 bg-yellow-500 hover:bg-yellow-700 text-white font-bold px-2 rounded"
                         onClick={() => openModal('rename')}
                     >
@@ -181,10 +202,10 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
                     title={modalType === 'add' ? "Add New Subgraph" : "Rename Subgraph"}
                     onClose={() => setIsModalOpen(false)}
                     onConfirm={handleConfirmModal}
-                    inputValue = {modalInput}
-                    setInputValue = {setModalInput}
+                    inputValue={modalInput}
+                    setInputValue={setModalInput}
                 >
-                     <input
+                    <input
                         type="text"
                         className="p-1 border border-gray-300 rounded"
                         placeholder={modalType === 'add' ? "Subgraph Name" : "New Name"}
@@ -193,10 +214,8 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
                     />
                 </Modal>
             )}
-
         </nav>
     );
 }
-
 
 export default Panel;
