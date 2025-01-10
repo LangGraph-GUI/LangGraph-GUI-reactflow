@@ -1,6 +1,6 @@
 // Panel.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { convertFlowToJson, convertJsonToFlow } from './JsonUtils';
 import { saveJsonToFile, loadJsonFromFile } from './saveIO';
 import RunWindow from './RunWindow';
@@ -29,13 +29,10 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     const [modalType, setModalType] = useState(null); // 'add' or 'rename'
      const [modalInput, setModalInput] = useState("");
 
-    useEffect(() => {
-        // Update redux store when nodes/edges change in the current subgraph
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
-    }, [nodes, edges, serialNumber, currentSubGraph, dispatch]);
-
+   
 
     const handleNew = () => {
+        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
         initSubGraphs();
         dispatch(updateSubGraph({ graphName: "root", nodes: [], serial_number: 1 }));
         setCurrentSubGraph("root");
@@ -83,11 +80,12 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
         setIsModalOpen(false);
         setModalType(null);
-         setModalInput("");
+        setModalInput("");
     };
       
 
     const handleRemoveSubGraph = () => {
+        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
         if (currentSubGraph !== "root") {
             dispatch(removeSubGraph(currentSubGraph));
             handleNew(); // Reset to root node
