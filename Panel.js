@@ -1,6 +1,6 @@
 // Panel.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { convertJsonToFlow, convertSubGraphToJson } from './JsonUtils';
 import { saveJsonToFile, loadJsonFromFile } from './saveIO';
 import RunWindow from './RunWindow';
@@ -29,45 +29,51 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     const [modalType, setModalType] = useState(null); // 'add' or 'rename'
     const [modalInput, setModalInput] = useState("");
 
-    const handleNew = () => {
-        // Convert and save the current graph before switching
+    // Function to Update Redux with current graph state
+    const updateReduxWithCurrentGraph = () => {
         const currentSubGraphJson = convertSubGraphToJson({
             graphName: currentSubGraph,
             nodes: nodes,
             serial_number: serialNumber,
         });
         dispatch(updateSubGraph(currentSubGraphJson));
+    };
+
+     // Effect to load subGraph from Redux whenever currentSubGraph changes
+    useEffect(() => {
+        const loadSubGraphData = () => {
+            const selectedSubGraph = subGraphs.find((graph) => graph.graphName === currentSubGraph);
+            if (selectedSubGraph) {
+                const processedData = convertJsonToFlow(selectedSubGraph);
+                if (processedData) {
+                    setNodes(processedData.nodes);
+                    setEdges(processedData.edges);
+                    setSerialNumber(processedData.serialNumber);
+                } else {
+                    Clear();
+                }
+            } else {
+                Clear();
+            }
+        };
+        loadSubGraphData();
+    }, [currentSubGraph, subGraphs, setNodes, setEdges, setSerialNumber]);
+
+    const handleNew = () => {
+        updateReduxWithCurrentGraph();
         dispatch(initSubGraphs());
-        dispatch(updateSubGraph({ graphName: "root", nodes: [], serial_number: 1 }));
+        dispatch(updateSubGraph({ graphName: "root", nodes: [], serial_number: 0 }));
         setCurrentSubGraph("root");
         Clear();
     };
 
     const handleLoadSubGraph = (graphName) => {
-        // Save current graph before switching
-         const currentSubGraphJson = convertSubGraphToJson({
-            graphName: currentSubGraph,
-            nodes: nodes,
-            serial_number: serialNumber,
-        });
-        dispatch(updateSubGraph(currentSubGraphJson));
-
-
-        // Load a subGraph from redux to GraphManagerContext
-        const selectedSubGraph = subGraphs.find((graph) => graph.graphName === graphName);
-        if (selectedSubGraph) {
-            const processedData = convertJsonToFlow(selectedSubGraph);
-            if (processedData) {
-                setNodes(processedData.nodes);
-                setEdges(processedData.edges);
-                setSerialNumber(processedData.serialNumber);
-            }
-
-            setCurrentSubGraph(graphName);
-        }
+        updateReduxWithCurrentGraph();
+        setCurrentSubGraph(graphName); // Switch the name, the effect will do the loading.
     };
 
     const openModal = (type) => {
+        updateReduxWithCurrentGraph();
         setIsModalOpen(true);
         setModalType(type);
         setModalInput("");
@@ -75,6 +81,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
 
     const handleConfirmModal = () => {
+        updateReduxWithCurrentGraph();
         if (modalType === 'add') {
             const uniqueName = modalInput.trim() === "" ? `newGraph${Date.now()}` : modalInput;
             dispatch(addSubGraph({ graphName: uniqueName, nodes: [], serial_number: 1 }));
@@ -88,7 +95,6 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
                 }
             }
         }
-
         setIsModalOpen(false);
         setModalType(null);
         setModalInput("");
@@ -96,12 +102,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
 
     const handleRemoveSubGraph = () => {
-        const currentSubGraphJson = convertSubGraphToJson({
-            graphName: currentSubGraph,
-            nodes: nodes,
-            serial_number: serialNumber,
-        });
-         dispatch(updateSubGraph(currentSubGraphJson));
+        updateReduxWithCurrentGraph();
          if (currentSubGraph !== "root") {
              dispatch(removeSubGraph(currentSubGraph));
              handleNew(); // Reset to root node
@@ -109,14 +110,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     };
 
     const handleSaveAll = async () => {
-        // Save current graph before saving all
-        const currentSubGraphJson = convertSubGraphToJson({
-            graphName: currentSubGraph,
-            nodes: nodes,
-            serial_number: serialNumber,
-        });
-        dispatch(updateSubGraph(currentSubGraphJson));
-
+        updateReduxWithCurrentGraph();
         try {
             saveJsonToFile(subGraphs);
         } catch (error) {
@@ -126,6 +120,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     };
 
     const handleLoad = async () => {
+        updateReduxWithCurrentGraph();
         try {
             const newSubGraphs = await loadJsonFromFile();
             if (Array.isArray(newSubGraphs)) {
@@ -140,10 +135,12 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     };
 
     const handleRun = () => {
+        updateReduxWithCurrentGraph();
         setShowRun(true);
     };
 
     const handleConfig = () => {
+        updateReduxWithCurrentGraph();
         setShowConfig(true);
     };
 
