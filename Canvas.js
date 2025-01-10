@@ -17,8 +17,8 @@ function Canvas() {
     edges,
     setEdges,
     onEdgesChange,
-    nodeIdCounter,
-    setNodeIdCounter,
+    serialNumber,
+    setSerialNumber,
   } = useGraphManager();
 
   const [contextMenu, setContextMenu] = useState(null);
@@ -45,9 +45,9 @@ function Canvas() {
 
   const handleAddNode = useCallback(() => {
     const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
-    addNode(nodes, setNodes, nodeIdCounter, setNodeIdCounter, newPosition);
+    addNode(nodes, setNodes, serialNumber, setSerialNumber, newPosition);
     setContextMenu(null);
-  }, [contextMenu, nodeIdCounter, setNodes, screenToFlowPosition, nodes, setNodeIdCounter]);
+  }, [contextMenu, serialNumber, setNodes, screenToFlowPosition, nodes, setSerialNumber]);
 
   const handleDeleteNode = useCallback(() => {
     if (contextMenu && contextMenu.nodeId) {

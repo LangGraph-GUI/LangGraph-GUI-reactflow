@@ -8,12 +8,12 @@ function RunWindow({ onClose }) {
     const [responseMessage, setResponseMessage] = useState('');
     const [isRunning, setIsRunning] = useState(false);
     const { username, llmModel, apiKey } = ConfigManager.getSettings();
-    const { nodes, nodeIdCounter } = useGraphManager();
+    const { nodes, serialNumber } = useGraphManager();
      const isPollingRef = useRef(false)
 
     const saveGraphData = async () => {
         try {
-            const flowData = convertFlowToJson(nodes, nodeIdCounter);
+            const flowData = convertFlowToJson(nodes, serialNumber);
             const response = await fetch(`${SERVER_URL}/save-graph/${encodeURIComponent(username)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

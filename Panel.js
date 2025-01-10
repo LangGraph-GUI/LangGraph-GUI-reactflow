@@ -17,8 +17,8 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
         setNodes,
         edges,
         setEdges,
-        nodeIdCounter,
-        setNodeIdCounter,
+        serialNumber,
+        setSerialNumber,
     } = useGraphManager();
     const dispatch = useDispatch();
     const subGraphs = useSelector((state) => state.subGraphs.subGraphs);
@@ -30,22 +30,22 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
     useEffect(() => {
         // Update redux store when nodes/edges change in the current subgraph
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, node_counter: nodeIdCounter }));
-    }, [nodes, edges, nodeIdCounter, currentSubGraph, dispatch]);
+        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
+    }, [nodes, edges, serialNumber, currentSubGraph, dispatch]);
 
 
     const handleNew = () => {
         initSubGraphs();
-        dispatch(updateSubGraph({ graphName: "root", nodes: [], node_counter: 1 }));
+        dispatch(updateSubGraph({ graphName: "root", nodes: [], serial_number: 1 }));
         setCurrentSubGraph("root");
         setNodes([]);
         setEdges([]);
-        setNodeIdCounter(1);
+        setSerialNumber(0);
     };
 
     const handleLoadSubGraph = (graphName) => {
         // Save current graph before switching
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, node_counter: nodeIdCounter }));
+        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
         // Load a subGraph from redux to GraphManagerContext
         const selectedSubGraph = subGraphs.find((graph) => graph.graphName === graphName);
         if (selectedSubGraph) {
@@ -53,7 +53,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
             if (processedData) {
                 setNodes(processedData.nodes);
                 setEdges(processedData.edges);
-                setNodeIdCounter(processedData.nodeCounter);
+                setSerialNumber(processedData.serialNumber);
             }
 
             setCurrentSubGraph(graphName);
@@ -70,7 +70,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     const handleConfirmModal = () => {
       if(modalType === 'add'){
          const uniqueName = modalInput.trim() === "" ? `newGraph${Date.now()}` : modalInput;
-        dispatch(addSubGraph({ graphName: uniqueName, nodes: [], node_counter: 1 }));
+        dispatch(addSubGraph({ graphName: uniqueName, nodes: [], serial_number: 1 }));
       } else if (modalType === 'rename'){
          if (currentSubGraph !== "root" && modalInput.trim() !== "") {
             const currentGraph = subGraphs.find((graph) => graph.graphName === currentSubGraph);
@@ -97,7 +97,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
 
     const handleSaveAll = async () => {
         // Save current graph before saving all
-        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, node_counter: nodeIdCounter }));
+        dispatch(updateSubGraph({ graphName: currentSubGraph, nodes: nodes, serial_number: serialNumber }));
         try {
             const flowData = convertFlowToJson(subGraphs);
             saveJsonToFile(flowData);

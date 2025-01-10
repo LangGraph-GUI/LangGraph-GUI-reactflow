@@ -36,7 +36,7 @@ export const convertSubGraphToJson = (subGraph) => {
   return {
       graphName: subGraph.graphName,
       nodes: nodesData,
-      node_counter: subGraph.node_counter,
+      serial_number: subGraph.serial_number,
     };
 };
 
@@ -87,7 +87,7 @@ export const processFlowData = (subGraphData) => {
       return {
           nodes: loadedNodes,
           edges: loadedEdges,
-          nodeCounter: subGraphData.node_counter || 1,
+          serialNumber: subGraphData.serial_number || 1,
       }
   } catch (error) {
     console.error('Error processing JSON data:', error);

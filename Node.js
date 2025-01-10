@@ -121,12 +121,12 @@ function Node({ data, isConnectable, id, prevs }) {
   );
 }
 
-export const addNode = (nodes, setNodes, nodeIdCounter, setNodeIdCounter, newPosition) => {
+export const addNode = (nodes, setNodes, serialNumber, setSerialNumber, newPosition) => {
   const newNode = {
-    id: nodeIdCounter.toString(),
+    id: serialNumber.toString(),
     type: 'textUpdater',
     data: {
-      name: `Node ${nodeIdCounter}`,
+      name: `Node ${serialNumber}`,
       description: '',
       type: 'STEP',
       ext: { info: '' }, // Initialize ext.info for new nodes
@@ -139,8 +139,8 @@ export const addNode = (nodes, setNodes, nodeIdCounter, setNodeIdCounter, newPos
     position: newPosition,
     prevs: []
   };
-  setNodes((nds) => nds.concat(newNode));
-  setNodeIdCounter(nodeIdCounter + 1);
+  setNodes((nodes) => nodes.concat(newNode));
+  setSerialNumber(serialNumber + 1);
 };
 
 export const deleteNode = (nodes, setNodes, edges, setEdges, nodeId) => {

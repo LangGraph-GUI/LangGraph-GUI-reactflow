@@ -9,9 +9,9 @@ export const useGraphManager = () => {
 };
 
 export const GraphManagerProvider = ({ children }) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [nodeIdCounter, setNodeIdCounter] = useState(1);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);  
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [serialNumber, setSerialNumber] = useState(0);
 
   const value = {
     nodes,
@@ -20,8 +20,8 @@ export const GraphManagerProvider = ({ children }) => {
     edges,
     setEdges,
     onEdgesChange,
-    nodeIdCounter,
-    setNodeIdCounter,
+    serialNumber,
+    setSerialNumber,
   };
 
   return (
