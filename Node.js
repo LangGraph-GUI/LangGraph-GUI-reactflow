@@ -121,28 +121,6 @@ function Node({ data, isConnectable, id, prevs }) {
   );
 }
 
-export const addNode = (nodes, setNodes, serialNumber, setSerialNumber, newPosition) => {
-  const newNode = {
-    id: serialNumber.toString(),
-    type: 'textUpdater',
-    data: {
-      name: `Node ${serialNumber}`,
-      description: '',
-      type: 'STEP',
-      ext: { info: '' }, // Initialize ext.info for new nodes
-      nexts: [],
-      true_next: null,
-      false_next: null,
-      width: 200,
-      height: 200
-    },
-    position: newPosition,
-    prevs: []
-  };
-  setNodes((nodes) => nodes.concat(newNode));
-  setSerialNumber(serialNumber + 1);
-};
-
 export const deleteNode = (nodes, setNodes, edges, setEdges, nodeId) => {
   let updatedNodes = [...nodes];
   const nodeToDelete = updatedNodes.find((node) => node.id === nodeId);

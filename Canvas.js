@@ -1,12 +1,14 @@
 // Canvas.js
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import ReactFlow, { MiniMap, Controls, Background, useReactFlow } from 'reactflow';
 import 'reactflow/dist/style.css';
-import Node, { addNode, deleteNode } from './Node';
+import Node, { deleteNode } from './Node';
 import { createEdge, deleteEdge } from './Edge';
 import { createConditionEdge, deleteConditionEdge } from './ConditionEdge';
 import { useGraphManager } from './GraphManager';
 import Panel from './Panel';
+
 const nodeTypes = { textUpdater: Node };
 
 function Canvas() {
@@ -17,8 +19,7 @@ function Canvas() {
     edges,
     setEdges,
     onEdgesChange,
-    serialNumber,
-    setSerialNumber,
+    addNode,
   } = useGraphManager();
 
   const [contextMenu, setContextMenu] = useState(null);
@@ -44,10 +45,12 @@ function Canvas() {
   }, []);
 
   const handleAddNode = useCallback(() => {
-    const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
-    addNode(nodes, setNodes, serialNumber, setSerialNumber, newPosition);
-    setContextMenu(null);
-  }, [contextMenu, serialNumber, setNodes, screenToFlowPosition, nodes, setSerialNumber]);
+    if (contextMenu) {
+      const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
+      addNode(newPosition);
+      setContextMenu(null);
+    }
+  }, [contextMenu, addNode, screenToFlowPosition]);
 
   const handleDeleteNode = useCallback(() => {
     if (contextMenu && contextMenu.nodeId) {

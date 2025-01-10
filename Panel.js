@@ -9,7 +9,7 @@ import ConfigWindow from '../ConfigWindow';
 import { useGraphManager } from './GraphManager';
 import { useSelector, useDispatch } from 'react-redux';
 import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs } from '../redux/slices/subGraphSlice';
-import Modal from './Modal'; // Import the Modal component
+import Modal from './Modal'; 
 
 function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     const {
@@ -19,6 +19,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
         setEdges,
         serialNumber,
         setSerialNumber,
+        Clear,
     } = useGraphManager();
     const dispatch = useDispatch();
     const subGraphs = useSelector((state) => state.subGraphs.subGraphs);
@@ -38,9 +39,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
         initSubGraphs();
         dispatch(updateSubGraph({ graphName: "root", nodes: [], serial_number: 1 }));
         setCurrentSubGraph("root");
-        setNodes([]);
-        setEdges([]);
-        setSerialNumber(0);
+        Clear();
     };
 
     const handleLoadSubGraph = (graphName) => {
@@ -181,7 +180,7 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
             <FileTransmit onUploadComplete={handleUploadComplete} />
             {showConfig && <ConfigWindow onClose={() => setShowConfig(false)} />}
             {showRun && <RunWindow onClose={() => setShowRun(false)} />}
-            
+
             {/* Generic Modal */}
             {isModalOpen && (
                 <Modal
