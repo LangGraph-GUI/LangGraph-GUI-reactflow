@@ -84,7 +84,7 @@ function Canvas() {
     });
   }, []);
 
-  const handlePaneContextMenu = useCallback((event) => {
+  const handlePanelContextMenu = useCallback((event) => {
     event.preventDefault();
     setContextMenu({
       mouseX: event.clientX,
@@ -147,7 +147,7 @@ function Canvas() {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeContextMenu={handleNodeContextMenu}
-          onPaneContextMenu={handlePaneContextMenu}
+          onPanelContextMenu={handlePanelContextMenu}
           onEdgeContextMenu={handleEdgeContextMenu}
           onClick={handleCloseContextMenu}
           onConnect={onConnect}
