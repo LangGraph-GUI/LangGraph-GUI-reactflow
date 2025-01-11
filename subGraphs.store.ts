@@ -45,9 +45,9 @@ const subGraphSlice = createSlice({
                 state.subGraphs.push(updatedGraph);
             } else {
                 // Graph exists, update it
-                 state.subGraphs[graphIndex] = {
+                state.subGraphs[graphIndex] = {
                     ...updatedGraph,
-                 }
+                }
             }
         },
         removeSubGraph: (state, action: PayloadAction<string>) => {

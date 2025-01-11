@@ -1,12 +1,14 @@
 // Graph/GraphApp.tsx
 
-import { ReactFlow, useReactFlow, ReactFlowProps } from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background, useReactFlow } from '@xyflow/react';
+import { ReactFlowProps } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
-import { addSubGraph, updateSubGraph, removeSubGraph, setCurrentGraphName } from './subGraphSlice.store';
-import { Node, Edge } from '@xyflow/react';
+import { updateSubGraph } from './subGraphs.store';
 import { useMemo, useCallback, useEffect, useState } from 'react';
+import Panel from './Panel';
+
 
 const initialGraphData = {
     graphName: "root",
@@ -26,9 +28,7 @@ const GraphApp: React.FC = () => {
 
     const { screenToFlowPosition } = useReactFlow();
 
-
     const [contextMenu, setContextMenu] = useState<{mouseX: number, mouseY: number} | null>(null);
-
 
     const getGraph = useCallback((graphName: string) => {
         return subGraphs.find((graph) => graph.graphName === graphName);
@@ -37,15 +37,13 @@ const GraphApp: React.FC = () => {
 
     useEffect(() => {
         const rootGraph = getGraph("root");
-          if (!rootGraph) {
-             dispatch(updateSubGraph({ graphName: "root", updatedGraph: initialGraphData }));
-          }
-      }, [dispatch, getGraph]);
-
+        if (!rootGraph) {
+            dispatch(updateSubGraph({ graphName: "root", updatedGraph: initialGraphData }));
+        }
+    }, [dispatch, getGraph]);
 
     // Always get the current graph, use initial graph data when current graph is not loaded
     const currentGraph = getGraph(currentGraphName) || initialGraphData;
-
 
     const handleAddNode = useCallback(() => {
         if (contextMenu) {
@@ -66,43 +64,7 @@ const GraphApp: React.FC = () => {
             setContextMenu(null);
         }
     }, [contextMenu, screenToFlowPosition, currentGraph, dispatch, currentGraphName]);
-  
 
-    const handleAddGraph = () => {
-        const newGraphName = prompt("Enter a new graph name:");
-        if (newGraphName) {
-            dispatch(addSubGraph(newGraphName));
-        }
-    };
-
-    const handleUpdateGraph = () => {
-        const newNodes: Node[] = [
-            { id: '3', position: { x: 200, y: 0 }, data: { label: '3' } },
-            { id: '4', position: { x: 200, y: 100 }, data: { label: '4' } },
-        ]
-        const newEdges: Edge[] = [{ id: 'e3-4', source: '3', target: '4' }]
-        dispatch(updateSubGraph({
-            graphName: currentGraphName,
-            updatedGraph: {
-                graphName: currentGraphName,
-                nodes: newNodes,
-                edges: newEdges,
-                serial_number: 1
-            }
-        }));
-    };
-
-    const handleRemoveGraph = () => {
-        const graphName = prompt("Enter the graph name to delete:");
-        if (graphName) {
-            dispatch(removeSubGraph(graphName));
-        }
-    };
-
-
-    const handleSelectGraph = (graphName: string) => {
-        dispatch(setCurrentGraphName(graphName));
-    };
 
     const handlePaneContextMenu = useCallback((event: React.MouseEvent) => {
         event.preventDefault();
@@ -122,22 +84,18 @@ const GraphApp: React.FC = () => {
         onClick: handleCloseContextMenu,
     }),[handlePaneContextMenu,handleCloseContextMenu])
 
-
     return (
         <div style={{ width: '100vw', height: '100vh' }}>
-            <button onClick={handleAddGraph}>Add Graph</button>
-            <button onClick={handleUpdateGraph}>Update Graph</button>
-            <button onClick={handleRemoveGraph}>Remove Graph</button>
-            <div>
-                {subGraphs.map((graph) => (
-                    <button key={graph.graphName} onClick={() => handleSelectGraph(graph.graphName)}>{graph.graphName}</button>
-                ))}
-            </div>
+            <Panel />
             <ReactFlow 
                 nodes={currentGraph.nodes} 
                 edges={currentGraph.edges}
                 {...reactFlowProps}
-            />
+            >
+                <MiniMap />
+                <Background />
+                <Controls />
+            </ReactFlow>
             {contextMenu && (
                 <div
                     className="absolute bg-white border border-gray-300 z-1000 p-2"
