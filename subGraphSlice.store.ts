@@ -39,10 +39,15 @@ const subGraphSlice = createSlice({
         ) => {
             const { graphName, updatedGraph } = action.payload;
             const graphIndex = state.subGraphs.findIndex((graph) => graph.graphName === graphName);
-            if (graphIndex !== -1) {
-                state.subGraphs[graphIndex] = {
+
+            if (graphIndex === -1) {
+                // Graph doesn't exist, add it
+                state.subGraphs.push(updatedGraph);
+            } else {
+                // Graph exists, update it
+                 state.subGraphs[graphIndex] = {
                     ...updatedGraph,
-                };
+                 }
             }
         },
         removeSubGraph: (state, action: PayloadAction<string>) => {

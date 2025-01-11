@@ -8,6 +8,16 @@ import { addSubGraph, updateSubGraph, removeSubGraph, setCurrentGraphName } from
 import { Node, Edge } from '@xyflow/react';
 import { useMemo, useCallback, useEffect, useState } from 'react';
 
+const initialGraphData = {
+    graphName: "root",
+    nodes: [
+        { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
+        { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
+    ],
+    edges: [{ id: 'e1-2', source: '1', target: '2' }],
+    serial_number: 0,
+};
+
 
 const GraphApp: React.FC = () => {
     const subGraphs = useSelector((state: RootState) => state.subGraphs.subGraphs);
@@ -24,26 +34,13 @@ const GraphApp: React.FC = () => {
         return subGraphs.find((graph) => graph.graphName === graphName);
     }, [subGraphs]);
 
-    const initialGraphData = useMemo(() => {
-        return {
-            graphName: "root",
-            nodes: [
-                { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-                { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-            ],
-            edges: [{ id: 'e1-2', source: '1', target: '2' }],
-            serial_number: 0,
-        };
-    }, []);
-
 
     useEffect(() => {
         const rootGraph = getGraph("root");
-        if (!rootGraph) { // Check if rootGraph exists, if not then initialize it.
-            dispatch(updateSubGraph({ graphName: "root", updatedGraph: initialGraphData }));
-        }
-    }, [dispatch, getGraph, initialGraphData]);
-
+          if (!rootGraph) {
+             dispatch(updateSubGraph({ graphName: "root", updatedGraph: initialGraphData }));
+          }
+      }, [dispatch, getGraph]);
 
 
     // Always get the current graph, use initial graph data when current graph is not loaded
