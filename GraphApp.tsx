@@ -108,9 +108,9 @@ const GraphApp: React.FC = () => {
 
     }, []);
     
-    const handleCloseContextMenu = () => {
+    const handleCloseContextMenu = useCallback(() => {
         setContextMenu(null);
-    };
+    }, []);
 
     const handleNodesChange = useCallback((changes: NodeChange[]) => {
         const updatedNodes = applyNodeChanges(changes, currentGraph.nodes);
