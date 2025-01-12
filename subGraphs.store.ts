@@ -12,12 +12,12 @@ interface SubGraph {
 
 interface SubGraphState {
     subGraphs: SubGraph[];
-    currentGraphName: string; // Changed to string
+    currentGraphName: string;
 }
 
 const initialState: SubGraphState = {
     subGraphs: [],
-    currentGraphName: "root", // Default to 'root'
+    currentGraphName: "root",
 };
 
 const subGraphSlice = createSlice({
@@ -33,6 +33,23 @@ const subGraphSlice = createSlice({
             });
             if (!state.currentGraphName) state.currentGraphName = action.payload;
         },
+        renameSubGraph: (
+            state,
+            action: PayloadAction<{ oldName: string; newName: string }>
+        ) => {
+            const {oldName, newName} = action.payload;
+            const graphIndex = state.subGraphs.findIndex((graph) => graph.graphName === oldName);
+            if (graphIndex !== -1) {
+                state.subGraphs[graphIndex] = {
+                    ...state.subGraphs[graphIndex],
+                    graphName: newName,
+                };
+                if (state.currentGraphName === oldName){
+                    state.currentGraphName = newName
+                }
+            }
+        },
+            
         updateSubGraph: (
             state,
             action: PayloadAction<{ graphName: string; updatedGraph: SubGraph }>
@@ -57,12 +74,12 @@ const subGraphSlice = createSlice({
                 state.currentGraphName = "root";
             }
         },
-        setCurrentGraphName: (state, action: PayloadAction<string>) => { // Changed to string
+        setCurrentGraphName: (state, action: PayloadAction<string>) => {
             state.currentGraphName = action.payload;
         },
     },
 });
 
-export const { addSubGraph, updateSubGraph, removeSubGraph, setCurrentGraphName } =
+export const { addSubGraph, updateSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph } =
     subGraphSlice.actions;
 export default subGraphSlice.reducer;

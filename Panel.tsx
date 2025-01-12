@@ -3,8 +3,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { addSubGraph, updateSubGraph, removeSubGraph, setCurrentGraphName } from './subGraphs.store';
-import { Node, Edge } from '@xyflow/react';
+import { addSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph } from './subGraphs.store';
 
 
 const Panel: React.FC = () => {
@@ -20,25 +19,23 @@ const Panel: React.FC = () => {
         }
     };
 
-    const handleUpdateGraph = () => {
-        const newNodes: Node[] = []
-        const newEdges: Edge[] = []
-        dispatch(updateSubGraph({
-            graphName: currentGraphName,
-            updatedGraph: {
-                graphName: currentGraphName,
-                nodes: newNodes,
-                edges: newEdges,
-                serial_number: 1
-            }
-        }));
-    };
+    const handleRenameGraph = () => {
+        const newGraphName = prompt("Enter a new graph name:");
+        if (newGraphName){
+            dispatch(renameSubGraph({
+                oldName: currentGraphName,
+                newName: newGraphName
+            }))
+        }
+    }
 
 
     const handleRemoveGraph = () => {
         const graphName = prompt("Enter the graph name to delete:");
-        if (graphName) {
+        if (graphName && graphName !== "root") {
             dispatch(removeSubGraph(graphName));
+        } else if (graphName === "root") {
+            alert("cannot delete root");
         }
     };
 
@@ -48,16 +45,36 @@ const Panel: React.FC = () => {
 
 
     return (
-        <div>
-            <button onClick={handleAddGraph}>Add Graph</button>
-            <button onClick={handleUpdateGraph}>Update Graph</button>
-            <button onClick={handleRemoveGraph}>Remove Graph</button>
-            <div>
+        <nav className="p-2 border-b z-20">
+            SubGraph:
+            <select
+                className="ml-2 py-0 border rounded"
+                value={currentGraphName}
+                onChange={(e) => handleSelectGraph(e.target.value)}
+                style={{
+                    fontWeight: 'bold', // make selected option bold
+                }}
+            >
                 {subGraphs.map((graph) => (
-                    <button key={graph.graphName} onClick={() => handleSelectGraph(graph.graphName)}>{graph.graphName}</button>
+                    <option
+                        key={graph.graphName}
+                        value={graph.graphName}
+                        style={{
+                            fontWeight: graph.graphName === currentGraphName ? 'bold' : 'normal',
+                        }}
+                    >
+                        {graph.graphName}
+                    </option>
                 ))}
-            </div>
-        </div>
+            </select>
+            <button className="ml-2 bg-green-500 hover:bg-green-700 text-white font-bold px-2 py-0 rounded" onClick={handleAddGraph}>Add</button>
+            {currentGraphName !== "root" && (
+                <div>
+                    <button className="ml-2 bg-yellow-500 hover:bg-yellow-700 text-white px-2 py-0 rounded" onClick={handleRenameGraph}>Rename</button>
+                    <button className="ml-2 bg-red-500 hover:bg-red-700 text-white px-2 py-0 rounded" onClick={handleRemoveGraph}>Remove</button>
+                </div>
+            )}
+        </nav>
     );
 };
 
