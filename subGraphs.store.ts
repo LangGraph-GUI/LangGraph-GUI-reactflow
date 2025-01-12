@@ -1,8 +1,7 @@
 // Graph/subGraphSlice.store.ts
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Node, Edge } from '@xyflow/react';
-
-
 
 interface SubGraph {
     graphName: string;
@@ -50,7 +49,7 @@ const subGraphSlice = createSlice({
                 }
             }
         },
-            
+         
         updateSubGraph: (
             state,
             action: PayloadAction<{ graphName: string; updatedGraph: SubGraph }>
@@ -88,13 +87,19 @@ const subGraphSlice = createSlice({
 
             state.subGraphs[graphIndex].nodes[nodeIndex] = {
                 ...state.subGraphs[graphIndex].nodes[nodeIndex],
-                data: {...state.subGraphs[graphIndex].nodes[nodeIndex].data, ...newData},
+                data: { ...state.subGraphs[graphIndex].nodes[nodeIndex].data, ...newData} ,
             };
 
         }
     },
 });
 
-export const { addSubGraph, updateSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph, updateNodeData } =
-    subGraphSlice.actions;
+export const { 
+    addSubGraph, 
+    updateSubGraph, 
+    removeSubGraph, 
+    setCurrentGraphName, 
+    renameSubGraph, 
+    updateNodeData 
+} = subGraphSlice.actions;
 export default subGraphSlice.reducer;
