@@ -1,22 +1,23 @@
 // Graph/CustomNode.tsx
+
 import React, { useCallback } from 'react';
 import { Handle, Position, NodeResizeControl, OnResize } from '@xyflow/react';
 import ResizeIcon from './ResizeIcon';
 
 interface CustomNodeProps {
-  id: string;
-  data: {
-    type: string;
-    name?: string;
-    tool?: string;
-    description?: string;
-    info?: string;
-    width?: number;
-    height?: number;
-  };
-  isConnectable?: boolean;
-  onNodeDataChange?: (id: string, newData: any) => void;
-  onResize?: (id: string, width: number, height: number) => void;
+    id: string;
+    data: {
+        type: string;
+        name?: string;
+        tool?: string;
+        description?: string;
+        info?: string;
+        width?: number;
+        height?: number;
+    };
+    isConnectable?: boolean;
+    onNodeDataChange?: (id: string, newData: any) => void;
+    onResize?: (id: string, width: number, height: number) => void;
 }
 
 

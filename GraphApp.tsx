@@ -1,4 +1,5 @@
 // Graph/GraphApp.tsx
+
 import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, applyNodeChanges, NodeChange } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -51,7 +52,7 @@ const GraphApp: React.FC = () => {
                 id: newNodeId,
                 type: 'custom',
                 position: newPosition,
-                data: { label: 'New Node', value: '0' },
+                data: { type:"STEP", width: 200, height: 200 },
             };
             const updatedNodes = [...currentGraph.nodes, newNode]
             dispatch(updateSubGraph({
@@ -131,6 +132,9 @@ const GraphApp: React.FC = () => {
         dispatch(updateNodeData({ graphName: currentGraphName, nodeId, newData }));
     }, [dispatch, currentGraphName]);
 
+    const handleNodeResize = useCallback((nodeId: string, width: number, height: number) => {
+        dispatch(updateNodeData({ graphName: currentGraphName, nodeId, newData: { ...getGraph(currentGraphName)?.nodes.find((node) => node.id === nodeId)?.data, width, height } }));
+    }, [dispatch, currentGraphName, getGraph])
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
         onContextMenu: handlePanelContextMenu,
@@ -155,8 +159,8 @@ const GraphApp: React.FC = () => {
     }, []);
     
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} onNodeDataChange={handleNodeDataChange} />,
-    }), [handleNodeDataChange]);
+        custom: (props: any) => <CustomNode {...props} onNodeDataChange={handleNodeDataChange} onResize={handleNodeResize} />,
+    }), [handleNodeDataChange, handleNodeResize]);
 
 
 
