@@ -45,7 +45,7 @@ const GraphControl: React.FC = () => {
 
 
     return (
-        <nav className="p-2 border-b z-20">
+        <nav className="p-2 z-20">
             SubGraph:
             <select
                 className="ml-2 py-0 border rounded"

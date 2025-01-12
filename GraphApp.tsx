@@ -1,21 +1,19 @@
 // Graph/GraphApp.tsx
-
 import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, applyNodeChanges, NodeChange } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
-import { updateSubGraph } from './subGraphs.store';
+import { updateSubGraph, updateNodeData } from './subGraphs.store';
 import { useMemo, useCallback, useEffect, useState, useRef } from 'react';
 import GraphControl from './GraphControl';
 import './GraphApp.css'
+import CustomNode from './CustomNode';
+
 
 const initialGraphData = {
     graphName: "root",
-    nodes: [
-        { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-        { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-    ],
-    edges: [{ id: 'e1-2', source: '1', target: '2' }],
+    nodes: [],
+    edges: [],
     serial_number: 0,
 };
 
@@ -48,17 +46,20 @@ const GraphApp: React.FC = () => {
     const handleAddNode = useCallback(() => {
         if (contextMenu && contextMenu.type === 'panel') {
             const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
+           const newNodeId = String(currentGraph.serial_number + 1);
             const newNode = {
-                id: String(Date.now()), // Generate a unique ID, consider using UUID
+                id: newNodeId,
+                type: 'custom',
                 position: newPosition,
-                data: { label: 'New Node' },
+                data: { label: 'New Node', value: '0' },
             };
             const updatedNodes = [...currentGraph.nodes, newNode]
             dispatch(updateSubGraph({
                 graphName: currentGraphName,
                 updatedGraph: {
                     ...currentGraph,
-                    nodes: updatedNodes
+                    nodes: updatedNodes,
+                    serial_number: currentGraph.serial_number + 1,
                 }
             }));
             setContextMenu(null);
@@ -126,6 +127,10 @@ const GraphApp: React.FC = () => {
         );
     }, [currentGraph, dispatch, currentGraphName]);
 
+    const handleNodeDataChange = useCallback((nodeId: string, newData: any) => {
+        dispatch(updateNodeData({ graphName: currentGraphName, nodeId, newData }));
+    }, [dispatch, currentGraphName]);
+
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
         onContextMenu: handlePanelContextMenu,
@@ -149,6 +154,10 @@ const GraphApp: React.FC = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
     
+    const nodeTypes = useMemo(() => ({
+        custom: (props: any) => <CustomNode {...props} onNodeDataChange={handleNodeDataChange} />,
+    }), [handleNodeDataChange]);
+
 
 
     return (
@@ -163,6 +172,7 @@ const GraphApp: React.FC = () => {
                     nodes={currentGraph.nodes} 
                     edges={currentGraph.edges}
                     {...reactFlowProps}
+                    nodeTypes={nodeTypes}
                 >
                     <MiniMap />
                     <Background />
