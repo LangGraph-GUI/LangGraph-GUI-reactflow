@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { convertJsonToFlow, convertSubGraphToJson } from './JsonUtils';
-import { saveJsonToFile, loadJsonFromFile } from './saveIO';
+import { saveJsonToFile, loadJsonFromFile } from '../utils/saveIO';
 import RunWindow from './RunWindow';
 import FileTransmit from './FileTransmit';
 import ConfigWindow from '../ConfigWindow';
 import { useGraphManager } from './GraphManager';
 import { useSelector, useDispatch } from 'react-redux';
-import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs, setSubGraphs } from '../redux/slices/subGraphSlice';
+import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs, setSubGraphs } from './subGraphSlice.store';
 import Modal from './Modal';
 
 function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
