@@ -13,7 +13,7 @@ interface CustomNodeProps {
         name?: string;
         tool?: string;
         description?: string;
-        info?: string;
+        ext?: string;
     };
     isConnectable?: boolean;
     onNodeDataChange?: (id: string, newData: any) => void;
@@ -96,11 +96,12 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
                         <option value="TOOL">TOOL</option>
                         <option value="CONDITION">CONDITION</option>
                         <option value="INFO">INFO</option>
+                        <option value="SUBGRAPH">SUBGRAPH</option>
                     </select>
                 </div>
                 {data.type !== 'START' && (
                     <>
-                        {['STEP', 'CONDITION', 'INFO'].includes(data.type) && (
+                        {['STEP', 'CONDITION', 'INFO', 'SUBGRAPH'].includes(data.type) && (
                             <div>
                                 <label htmlFor="name" className="block text-xs">
                   Name:
@@ -139,20 +140,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
                                     defaultValue={data.description}
                                     onChange={handleChange}
                                     className="nodrag w-full h-full resize-none bg-white border border-gray-300 rounded focus:outline-none"
-                                />
-                            </div>
-                        )}
-                        {data.type === 'INFO' && (
-                            <div>
-                                <label htmlFor="info" className="block text-xs">
-                  Question:
-                                </label>
-                                <input
-                                    id="info"
-                                    name="info"
-                                    defaultValue={data.info}
-                                    onChange={handleChange}
-                                    className="nodrag w-full h-8 bg-white border border-gray-300 rounded focus:outline-none"
                                 />
                             </div>
                         )}
