@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
 import { updateSubGraph } from './subGraphs.store';
 import { useMemo, useCallback, useEffect, useState, useRef } from 'react';
-import Panel from './Panel';
+import GraphControl from './GraphControl';
 import './GraphApp.css'
 
 const initialGraphData = {
@@ -26,7 +26,7 @@ const GraphApp: React.FC = () => {
     const currentGraphName = useSelector((state: RootState) => state.subGraphs.currentGraphName);
     const dispatch = useDispatch();
     const { screenToFlowPosition } = useReactFlow();
-    const [contextMenu, setContextMenu] = useState<{mouseX: number, mouseY: number} | null>(null);
+    const [contextMenu, setContextMenu] = useState<{mouseX: number, mouseY: number, nodeId: string | null, type: 'panel' | 'node'} | null>(null);
     const [canvasHeight, setCanvasHeight] = useState<number>(window.innerHeight);
     const menuBarRef = useRef<HTMLDivElement>(null);  //ref for menu bar
     
@@ -47,7 +47,7 @@ const GraphApp: React.FC = () => {
     const currentGraph = getGraph(currentGraphName) || initialGraphData;
 
     const handleAddNode = useCallback(() => {
-        if (contextMenu) {
+        if (contextMenu && contextMenu.type === 'panel') {
             const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
             const newNode = {
                 id: String(Date.now()), // Generate a unique ID, consider using UUID
@@ -66,13 +66,47 @@ const GraphApp: React.FC = () => {
         }
     }, [contextMenu, screenToFlowPosition, currentGraph, dispatch, currentGraphName]);
 
+        
+    const handleDeleteNode = useCallback(() => {
+        if (contextMenu && contextMenu.nodeId) {
+            const nodeToDelete = contextMenu.nodeId;
+            const updatedNodes = currentGraph.nodes.filter((node) => node.id !== nodeToDelete);
+            const updatedEdges = currentGraph.edges.filter((edge) => edge.source !== nodeToDelete && edge.target !== nodeToDelete);
 
-    const handlePaneContextMenu = useCallback((event: React.MouseEvent) => {
+            dispatch(updateSubGraph({
+                graphName: currentGraphName,
+                updatedGraph: {
+                    ...currentGraph,
+                    nodes: updatedNodes,
+                    edges: updatedEdges
+                }
+            }));
+            setContextMenu(null);
+        }
+    }, [contextMenu, dispatch, currentGraph, currentGraphName]);
+
+    const handlePanelContextMenu = useCallback((event: React.MouseEvent) => {
         event.preventDefault();
-        setContextMenu({
-            mouseX: event.clientX,
-            mouseY: event.clientY
-        });
+        const target = event.target as HTMLElement;
+        const nodeElement = target.closest('.react-flow__node') as HTMLElement;
+
+        if(nodeElement){
+            const nodeId = nodeElement.getAttribute("data-id")
+            setContextMenu({
+                mouseX: event.clientX,
+                mouseY: event.clientY,
+                nodeId: nodeId,
+                type: 'node'
+            });
+        }else{
+            setContextMenu({
+                mouseX: event.clientX,
+                mouseY: event.clientY,
+                nodeId: null,
+                type: 'panel'
+            });
+        }
+
     }, []);
     
     const handleCloseContextMenu = () => {
@@ -81,9 +115,9 @@ const GraphApp: React.FC = () => {
 
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
-        onContextMenu: handlePaneContextMenu,
+        onContextMenu: handlePanelContextMenu,
         onClick: handleCloseContextMenu,
-    }),[handlePaneContextMenu,handleCloseContextMenu])
+    }),[handlePanelContextMenu,handleCloseContextMenu])
 
     useEffect(() => {
         const handleResize = () => {
@@ -107,7 +141,7 @@ const GraphApp: React.FC = () => {
         <div style={{ width: '100vw', height: '100vh' }}>
             {/*Assuming you have a div with ref for menuBar*/}
             <div ref={menuBarRef}>
-                <Panel />
+                <GraphControl />
             </div> 
             
             <div style={{ height: `${canvasHeight}px` }} className="w-full">
@@ -120,7 +154,7 @@ const GraphApp: React.FC = () => {
                     <Background />
                     <Controls />
                 </ReactFlow>
-                {contextMenu && (
+                {contextMenu && contextMenu.type === 'panel' && (
                     <div
                         className="absolute bg-white border border-gray-300 z-1000 p-2"
                         style={{
@@ -129,6 +163,18 @@ const GraphApp: React.FC = () => {
                         }}
                     >
                         <button onClick={handleAddNode} className="block bg-green-500 hover:bg-green-700 text-white font-bold px-2 rounded">Add Node</button>
+                        <button onClick={handleCloseContextMenu} className="block bg-gray-500 hover:bg-gray-700 text-white font-bold px-2 rounded">Cancel</button>
+                    </div>
+                )}
+                {contextMenu && contextMenu.type === 'node' &&(
+                    <div
+                        className="absolute bg-white border border-gray-300 z-1000 p-2"
+                        style={{
+                            top: contextMenu.mouseY,
+                            left: contextMenu.mouseX,
+                        }}
+                    >
+                        <button onClick={handleDeleteNode} className="block bg-red-500 hover:bg-red-700 text-white font-bold px-2 rounded">Delete Node</button>
                         <button onClick={handleCloseContextMenu} className="block bg-gray-500 hover:bg-gray-700 text-white font-bold px-2 rounded">Cancel</button>
                     </div>
                 )}

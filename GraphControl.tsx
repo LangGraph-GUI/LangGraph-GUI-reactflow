@@ -1,4 +1,4 @@
-// Graph/Panel.tsx
+// Graph/GraphControl.tsx
 
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,7 +6,7 @@ import { RootState } from '../redux/store';
 import { addSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph } from './subGraphs.store';
 
 
-const Panel: React.FC = () => {
+const GraphControl: React.FC = () => {
     const subGraphs = useSelector((state: RootState) => state.subGraphs.subGraphs);
     const currentGraphName = useSelector((state: RootState) => state.subGraphs.currentGraphName);
     const dispatch = useDispatch();
@@ -78,4 +78,4 @@ const Panel: React.FC = () => {
     );
 };
 
-export default Panel;
+export default GraphControl;
