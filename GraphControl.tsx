@@ -69,10 +69,10 @@ const GraphControl: React.FC = () => {
             </select>
             <button className="ml-2 bg-green-500 hover:bg-green-700 text-white font-bold px-2 py-0 rounded" onClick={handleAddGraph}>Add</button>
             {currentGraphName !== "root" && (
-                <div>
+                <span>
                     <button className="ml-2 bg-yellow-500 hover:bg-yellow-700 text-white px-2 py-0 rounded" onClick={handleRenameGraph}>Rename</button>
                     <button className="ml-2 bg-red-500 hover:bg-red-700 text-white px-2 py-0 rounded" onClick={handleRemoveGraph}>Remove</button>
-                </div>
+                </span>
             )}
         </nav>
     );

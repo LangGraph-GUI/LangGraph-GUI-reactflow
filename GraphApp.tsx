@@ -1,7 +1,6 @@
 // Graph/GraphApp.tsx
 
-import { ReactFlow, MiniMap, Controls, Background, useReactFlow } from '@xyflow/react';
-import { ReactFlowProps } from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, applyNodeChanges, NodeChange } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
@@ -66,7 +65,7 @@ const GraphApp: React.FC = () => {
         }
     }, [contextMenu, screenToFlowPosition, currentGraph, dispatch, currentGraphName]);
 
-        
+
     const handleDeleteNode = useCallback(() => {
         if (contextMenu && contextMenu.nodeId) {
             const nodeToDelete = contextMenu.nodeId;
@@ -113,11 +112,26 @@ const GraphApp: React.FC = () => {
         setContextMenu(null);
     };
 
+    const handleNodesChange = useCallback((changes: NodeChange[]) => {
+        const updatedNodes = applyNodeChanges(changes, currentGraph.nodes);
+
+        dispatch(
+            updateSubGraph({
+                graphName: currentGraphName,
+                updatedGraph: {
+                    ...currentGraph,
+                    nodes: updatedNodes,
+                },
+            })
+        );
+    }, [currentGraph, dispatch, currentGraphName]);
+
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
         onContextMenu: handlePanelContextMenu,
         onClick: handleCloseContextMenu,
-    }),[handlePanelContextMenu,handleCloseContextMenu])
+        onNodesChange: handleNodesChange,
+    }),[handlePanelContextMenu,handleCloseContextMenu, handleNodesChange])
 
     useEffect(() => {
         const handleResize = () => {
