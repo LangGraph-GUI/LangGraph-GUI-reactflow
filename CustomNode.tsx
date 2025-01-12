@@ -30,15 +30,18 @@ const handleStyle = {
 
 const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConnectable = true, onNodeDataChange }) => {
 
+
     const handleChange = useCallback((evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = evt.target;
         onNodeDataChange?.(id, { ...data, [name]: value });
     }, [id, data, onNodeDataChange]);
 
 
+    const generateFieldId = (fieldName: string) => `${id}-${fieldName}`;
+
     return (
         <div
-            className="border border-gray-500 p-2 rounded-xl bg-white overflow-visible relative flex flex-col text-black" // Added text-black here
+            className={`border border-gray-500 p-2 rounded-xl bg-white overflow-visible relative flex flex-col text-black`}
             style={{ width: width, height: height }}
         >
             <NodeResizeControl
@@ -47,8 +50,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
                 minHeight={200}
             >
                 <ResizeIcon />
-            </NodeResizeControl>
-            <Handle
+            </NodeResizeControl>            <Handle
                 type="target"
                 position={Position.Left}
                 isConnectable={isConnectable}
@@ -81,15 +83,16 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
             />
             <div className="flex flex-col h-full flex-grow">
                 <div>
-                    <label htmlFor="type" className="block text-xs">
-              Type:
+                    <label htmlFor={generateFieldId("type")} className="block text-xs">
+                        Type:
                     </label>
                     <select
-                        id="type"
+                        id={generateFieldId("type")}
                         name="type"
                         defaultValue={data.type}
                         onChange={handleChange}
                         className="nodrag w-full bg-white border border-gray-300 rounded focus:outline-none"
+                         autoComplete="off" // Disable autocomplete for select fields by default since their values are predetermined
                     >
                         <option value="START">START</option>
                         <option value="STEP">STEP</option>
@@ -103,43 +106,46 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
                     <>
                         {['STEP', 'CONDITION', 'INFO', 'SUBGRAPH'].includes(data.type) && (
                             <div>
-                                <label htmlFor="name" className="block text-xs">
-                  Name:
+                                <label htmlFor={generateFieldId("name")} className="block text-xs">
+                                    Name:
                                 </label>
                                 <input
-                                    id="name"
+                                    id={generateFieldId("name")}
                                     name="name"
                                     defaultValue={data.name}
                                     onChange={handleChange}
                                     className="nodrag w-full bg-white border border-gray-300 rounded focus:outline-none"
+                                    autoComplete="off"
                                 />
                             </div>
                         )}
                         {data.type === 'STEP' && (
                             <div>
-                                <label htmlFor="tool" className="block text-xs">
-                  Tool:
+                                <label htmlFor={generateFieldId("tool")} className="block text-xs">
+                                    Tool:
                                 </label>
                                 <input
-                                    id="tool"
+                                    id={generateFieldId("tool")}
                                     name="tool"
                                     defaultValue={data.tool}
                                     onChange={handleChange}
                                     className="nodrag w-full bg-white border border-gray-300 rounded focus:outline-none"
+                                    autoComplete="off"
                                 />
                             </div>
                         )}
                         {['STEP', 'TOOL', 'CONDITION', 'INFO'].includes(data.type) && (
                             <div className="flex-grow">
-                                <label htmlFor="description" className="block text-xs">
-                  Description:
+                                <label htmlFor={generateFieldId("description")} className="block text-xs">
+                                    Description:
                                 </label>
                                 <textarea
-                                    id="description"
+                                    id={generateFieldId("description")}
                                     name="description"
                                     defaultValue={data.description}
                                     onChange={handleChange}
                                     className="nodrag w-full h-full resize-none bg-white border border-gray-300 rounded focus:outline-none"
+                                     autoComplete="off"
                                 />
                             </div>
                         )}
@@ -149,5 +155,6 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
         </div>
     );
 };
+
 
 export default React.memo(CustomNode);
