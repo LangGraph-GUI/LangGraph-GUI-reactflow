@@ -52,7 +52,9 @@ const GraphApp: React.FC = () => {
                 id: newNodeId,
                 type: 'custom',
                 position: newPosition,
-                data: { type:"STEP", width: 200, height: 200 },
+                width: 200,
+                height: 200,
+                data: { type:"STEP" },
             };
             const updatedNodes = [...currentGraph.nodes, newNode]
             dispatch(updateSubGraph({
@@ -133,8 +135,9 @@ const GraphApp: React.FC = () => {
     }, [dispatch, currentGraphName]);
 
     const handleNodeResize = useCallback((nodeId: string, width: number, height: number) => {
-        dispatch(updateNodeData({ graphName: currentGraphName, nodeId, newData: { ...getGraph(currentGraphName)?.nodes.find((node) => node.id === nodeId)?.data, width, height } }));
-    }, [dispatch, currentGraphName, getGraph])
+        dispatch(updateNodeData({ graphName: currentGraphName, nodeId, newData: { width, height } }));
+    }, [dispatch, currentGraphName])
+
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
         onContextMenu: handlePanelContextMenu,

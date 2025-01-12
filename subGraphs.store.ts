@@ -88,7 +88,7 @@ const subGraphSlice = createSlice({
 
             state.subGraphs[graphIndex].nodes[nodeIndex] = {
                 ...state.subGraphs[graphIndex].nodes[nodeIndex],
-                data: newData,
+                data: {...state.subGraphs[graphIndex].nodes[nodeIndex].data, ...newData},
             };
 
         }

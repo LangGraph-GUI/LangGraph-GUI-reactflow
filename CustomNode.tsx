@@ -1,23 +1,22 @@
 // Graph/CustomNode.tsx
 
 import React, { useCallback } from 'react';
-import { Handle, Position, NodeResizeControl, OnResize } from '@xyflow/react';
+import { Handle, Position, NodeResizeControl } from '@xyflow/react';
 import ResizeIcon from './ResizeIcon';
 
 interface CustomNodeProps {
     id: string;
+    width: number;
+    height: number;
     data: {
         type: string;
         name?: string;
         tool?: string;
         description?: string;
         info?: string;
-        width?: number;
-        height?: number;
     };
     isConnectable?: boolean;
     onNodeDataChange?: (id: string, newData: any) => void;
-    onResize?: (id: string, width: number, height: number) => void;
 }
 
 
@@ -29,30 +28,23 @@ const handleStyle = {
 };
 
 
-const CustomNode: React.FC<CustomNodeProps> = ({ id, data, isConnectable = true, onNodeDataChange, onResize }) => {
+const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConnectable = true, onNodeDataChange }) => {
 
     const handleChange = useCallback((evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = evt.target;
         onNodeDataChange?.(id, { ...data, [name]: value });
     }, [id, data, onNodeDataChange]);
 
-    const handleResize = useCallback<OnResize>(
-        (_, { width, height }) => {
-            onResize?.(id, width, height);
-        },
-        [id, onResize]
-    );
 
     return (
         <div
             className="border border-gray-500 p-2 rounded-xl bg-white overflow-visible relative flex flex-col text-black" // Added text-black here
-            style={{ width: data.width || 200, height: data.height || 200 }}
+            style={{ width: width, height: height }}
         >
             <NodeResizeControl
                 className="absolute right-1 bottom-1"
                 minWidth={200}
                 minHeight={200}
-                onResize={handleResize}
             >
                 <ResizeIcon />
             </NodeResizeControl>
