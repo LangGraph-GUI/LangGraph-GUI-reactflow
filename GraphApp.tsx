@@ -46,7 +46,7 @@ const GraphApp: React.FC = () => {
     const handleAddNode = useCallback(() => {
         if (contextMenu && contextMenu.type === 'panel') {
             const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
-           const newNodeId = String(currentGraph.serial_number + 1);
+            const newNodeId = String(currentGraph.serial_number + 1);
             const newNode = {
                 id: newNodeId,
                 type: 'custom',

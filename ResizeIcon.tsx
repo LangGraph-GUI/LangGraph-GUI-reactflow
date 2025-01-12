@@ -1,6 +1,6 @@
-// svgResize.tsx
+// ResizeIcon.tsx
 
-function svgResize(): JSX.Element {
+function ResizeIcon(): JSX.Element {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -23,4 +23,4 @@ function svgResize(): JSX.Element {
     );
 }
 
-export default svgResize;
+export default ResizeIcon;
