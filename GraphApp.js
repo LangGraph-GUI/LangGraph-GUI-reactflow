@@ -1,7 +1,7 @@
 // GraphApp.js
 
 import React from 'react';
-import { ReactFlowProvider } from 'reactflow';
+import { ReactFlowProvider } from '@xyflow/react';
 import Canvas from './Canvas';
 
 function App() {

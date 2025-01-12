@@ -1,6 +1,6 @@
 // Edge.js
 
-import { addEdge } from 'reactflow';
+import { addEdge } from '@xyflow/react';
 
 export const createEdge = (edges, setEdges, params, nodes, setNodes) => {
   const { source, target } = params;

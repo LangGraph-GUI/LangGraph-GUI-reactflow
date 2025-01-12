@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Handle, Position, NodeResizeControl } from 'reactflow';
+import { Handle, Position, NodeResizeControl } from '@xyflow/react';
 import ResizeIcon from './ResizeIcon';
 
 const handleStyle = {

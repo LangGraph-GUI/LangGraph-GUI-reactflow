@@ -1,6 +1,6 @@
 // ConditionEdge.js
 
-import { addEdge } from 'reactflow';
+import { addEdge } from '@xyflow/react';
 
 export const createConditionEdge = (edges, setEdges, params, nodes, setNodes) => {
   const { source, target, sourceHandle } = params;

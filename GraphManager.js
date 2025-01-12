@@ -1,7 +1,7 @@
 // GraphManager.js
 
 import React, { createContext, useContext, useState } from 'react';
-import { useNodesState, useEdgesState} from 'reactflow';
+import { useNodesState, useEdgesState} from '@xyflow/react';
 
 const GraphManagerContext = createContext(null);
 

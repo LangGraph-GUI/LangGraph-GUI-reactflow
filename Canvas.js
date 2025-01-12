@@ -1,15 +1,15 @@
 // Canvas.js
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import ReactFlow, { MiniMap, Controls, Background, useReactFlow } from 'reactflow';
-import 'reactflow/dist/style.css';
+import { ReactFlow, MiniMap, Controls, Background, useReactFlow, Handle } from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import Node, { deleteNode } from './Node';
 import { createEdge, deleteEdge } from './Edge';
 import { createConditionEdge, deleteConditionEdge } from './ConditionEdge';
 import { useGraphManager } from './GraphManager';
 import Panel from './Panel';
 
-const nodeTypes = { textUpdater: Node };
+const nodeTypes = { textUpdater: Node }; // Keep this, assuming your Node component handles it correctly
 
 function Canvas() {
   const {
@@ -44,6 +44,7 @@ function Canvas() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+
   const handleAddNode = useCallback(() => {
     if (contextMenu) {
       const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
@@ -60,18 +61,19 @@ function Canvas() {
   }, [contextMenu, setNodes, setEdges, nodes, edges]);
 
   const handleDeleteEdge = useCallback(() => {
-    if (contextMenu && contextMenu.edgeId) {
-      const edge = edges.find((e) => e.id === contextMenu.edgeId);
-      if (edge) {
-        if (edge.sourceHandle === 'true' || edge.sourceHandle === 'false') {
-          deleteConditionEdge(edges, setEdges, contextMenu.edgeId, nodes, setNodes);
-        } else {
-          deleteEdge(edges, setEdges, contextMenu.edgeId, nodes, setNodes);
+      if (contextMenu && contextMenu.edgeId) {
+        const edge = edges.find((e) => e.id === contextMenu.edgeId);
+        if (edge) {
+            if (edge.sourceHandle === 'true' || edge.sourceHandle === 'false') {
+              deleteConditionEdge(edges, setEdges, contextMenu.edgeId, nodes, setNodes);
+            } else {
+              deleteEdge(edges, setEdges, contextMenu.edgeId, nodes, setNodes);
+            }
         }
       }
-    }
     setContextMenu(null);
   }, [contextMenu, setEdges, edges, nodes, setNodes]);
+
 
   const handleNodeContextMenu = useCallback((event, node) => {
     event.preventDefault();
@@ -109,25 +111,27 @@ function Canvas() {
     setContextMenu(null);
   };
 
+
   const onConnect = useCallback((params) => {
     const sourceNode = nodes.find(node => node.id === params.source);
 
     if (params.sourceHandle === 'true') {
-      if (sourceNode.data.true_next !== null) {
-        alert('True port already has a connection.');
-        return;
+        if (sourceNode.data.true_next !== null) {
+          alert('True port already has a connection.');
+          return;
+        }
+        createConditionEdge(edges, setEdges, params, nodes, setNodes);
+      } else if (params.sourceHandle === 'false') {
+        if (sourceNode.data.false_next !== null) {
+            alert('False port already has a connection.');
+            return;
+        }
+        createConditionEdge(edges, setEdges, params, nodes, setNodes);
+      } else {
+        createEdge(edges, setEdges, params, nodes, setNodes);
       }
-      createConditionEdge(edges, setEdges, params, nodes, setNodes);
-    } else if (params.sourceHandle === 'false') {
-      if (sourceNode.data.false_next !== null) {
-        alert('False port already has a connection.');
-        return;
-      }
-      createConditionEdge(edges, setEdges, params, nodes, setNodes);
-    } else {
-      createEdge(edges, setEdges, params, nodes, setNodes);
-    }
   }, [setEdges, edges, nodes, setNodes]);
+
 
   return (
     <div className="h-screen w-full relative">
@@ -147,7 +151,7 @@ function Canvas() {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeContextMenu={handleNodeContextMenu}
-          onPanelContextMenu={handlePanelContextMenu}
+          onPaneContextMenu={handlePanelContextMenu} // Changed from onPanelContextMenu
           onEdgeContextMenu={handleEdgeContextMenu}
           onClick={handleCloseContextMenu}
           onConnect={onConnect}
