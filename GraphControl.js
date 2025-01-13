@@ -9,7 +9,6 @@ import ConfigWindow from '../ConfigWindow';
 import { useGraphContext } from './GraphContext';
 import { useSelector, useDispatch } from 'react-redux';
 import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs, setSubGraphs } from './subGraphSlice.store';
-import Modal from './Modal';
 
 function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
     const {
@@ -24,9 +23,6 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
     const subGraphs = useSelector((state) => state.subGraphs.subGraphs);
 
     const [currentSubGraph, setCurrentSubGraph] = useState("root");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalType, setModalType] = useState(null); // 'add' or 'rename'
-    const [modalInput, setModalInput] = useState("");
 
     // Function to Update Redux with current graph state
     const updateReduxWithCurrentGraph = () => {
@@ -38,7 +34,7 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
         dispatch(updateSubGraph(currentSubGraphJson));
     };
 
-     // Effect to load subGraph from Redux whenever currentSubGraph changes
+    // Effect to load subGraph from Redux whenever currentSubGraph changes
     useEffect(() => {
         const loadSubGraphData = () => {
             const selectedSubGraph = subGraphs.find((graph) => graph.graphName === currentSubGraph);
@@ -58,6 +54,7 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
         loadSubGraphData();
     }, [currentSubGraph, subGraphs, setNodes, setEdges, setSerialNumber]);
 
+
     const handleNew = () => {
         updateReduxWithCurrentGraph();
         dispatch(initSubGraphs());
@@ -71,32 +68,28 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
         setCurrentSubGraph(graphName); // Switch the name, the effect will do the loading.
     };
 
-    const openModal = (type) => {
+    const handleAddSubGraph = () => {
         updateReduxWithCurrentGraph();
-        setIsModalOpen(true);
-        setModalType(type);
-        setModalInput("");
+        const newName = window.prompt("Enter the name for the new subgraph:");
+         if(newName) {
+            const uniqueName = newName.trim() === "" ? `newGraph${Date.now()}` : newName;
+            dispatch(addSubGraph({ graphName: uniqueName, nodes: [], serial_number: 1 }));
+         }
     };
 
-
-    const handleConfirmModal = () => {
+    const handleRenameSubGraph = () => {
         updateReduxWithCurrentGraph();
-        if (modalType === 'add') {
-            const uniqueName = modalInput.trim() === "" ? `newGraph${Date.now()}` : modalInput;
-            dispatch(addSubGraph({ graphName: uniqueName, nodes: [], serial_number: 1 }));
-        } else if (modalType === 'rename') {
-            if (currentSubGraph !== "root" && modalInput.trim() !== "") {
-                const currentGraph = subGraphs.find((graph) => graph.graphName === currentSubGraph);
-                if (currentGraph) {
-                    dispatch(removeSubGraph(currentSubGraph));
-                    dispatch(addSubGraph({ ...currentGraph, graphName: modalInput }));
-                    setCurrentSubGraph(modalInput);
-                }
+        if(currentSubGraph === "root") return;
+        const newName = window.prompt("Enter the new name for the subgraph:", currentSubGraph);
+        if (newName && newName.trim() !== "" && newName !== currentSubGraph ) {
+            const currentGraph = subGraphs.find((graph) => graph.graphName === currentSubGraph);
+            if (currentGraph) {
+                dispatch(removeSubGraph(currentSubGraph));
+                dispatch(addSubGraph({ ...currentGraph, graphName: newName }));
+                setCurrentSubGraph(newName);
             }
         }
-        setIsModalOpen(false);
-        setModalType(null);
-        setModalInput("");
+
     };
 
 
@@ -122,7 +115,7 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
         updateReduxWithCurrentGraph();
         try {
             const newSubGraphs = await loadJsonFromFile();
-            if (Array.isArray(newSubGraphs)) {
+             if (Array.isArray(newSubGraphs)) {
                 dispatch(setSubGraphs(newSubGraphs));
             } else {
                 alert('incorrect file form')
@@ -133,7 +126,7 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
         }
     };
 
-    const handleRun = () => {
+     const handleRun = () => {
         updateReduxWithCurrentGraph();
         setShowRun(true);
     };
@@ -143,13 +136,14 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
         setShowConfig(true);
     };
 
+
     const handleUploadComplete = () => {
         console.log('Upload complete.');
     };
 
     return (
         <nav className="p-2 border-b border-gray-300 mb-2 bg-white z-20">
-            <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleNew}>New Graph</button>
+             <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleNew}>New Graph</button>
             <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleSaveAll}>Save Graphs</button>
             <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleLoad}>Load Graph</button>
             <button className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded" onClick={handleRun}>Run Graph</button>
@@ -168,19 +162,19 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
             </select>
             <button
                 className="ml-2 bg-green-500 hover:bg-green-700 text-white font-bold px-2 rounded"
-                onClick={() => openModal('add')}
+                onClick={handleAddSubGraph}
             >
                 Add Subgraph
             </button>
             {currentSubGraph !== "root" && (
                 <>
-                    <button
+                   <button
                         className="ml-2 bg-yellow-500 hover:bg-yellow-700 text-white font-bold px-2 rounded"
-                        onClick={() => openModal('rename')}
+                        onClick={handleRenameSubGraph}
                     >
                         Rename Subgraph
                     </button>
-                    <button
+                     <button
                         className="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold px-2 rounded"
                         onClick={handleRemoveSubGraph}
                     >
@@ -192,24 +186,7 @@ function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
             {showConfig && <ConfigWindow onClose={() => setShowConfig(false)} />}
             {showRun && <RunWindow onClose={() => setShowRun(false)} />}
 
-            {/* Generic Modal */}
-            {isModalOpen && (
-                <Modal
-                    title={modalType === 'add' ? "Add New Subgraph" : "Rename Subgraph"}
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={handleConfirmModal}
-                    inputValue={modalInput}
-                    setInputValue={setModalInput}
-                >
-                    <input
-                        type="text"
-                        className="p-1 border border-gray-300 rounded"
-                        placeholder={modalType === 'add' ? "Subgraph Name" : "New Name"}
-                        value={modalInput}
-                        onChange={(e) => setModalInput(e.target.value)}
-                    />
-                </Modal>
-            )}
+
         </nav>
     );
 }
