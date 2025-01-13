@@ -92,7 +92,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
                         defaultValue={data.type}
                         onChange={handleChange}
                         className="nodrag w-full bg-white border border-gray-300 rounded focus:outline-none"
-                         autoComplete="off" // Disable autocomplete for select fields by default since their values are predetermined
+                        autoComplete="off" // Disable autocomplete for select fields by default since their values are predetermined
                     >
                         <option value="START">START</option>
                         <option value="STEP">STEP</option>
@@ -145,7 +145,7 @@ const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConn
                                     defaultValue={data.description}
                                     onChange={handleChange}
                                     className="nodrag w-full h-full resize-none bg-white border border-gray-300 rounded focus:outline-none"
-                                     autoComplete="off"
+                                    autoComplete="off"
                                 />
                             </div>
                         )}

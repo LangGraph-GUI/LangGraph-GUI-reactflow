@@ -1,52 +1,42 @@
 // Graph/GraphControl.tsx
 
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
-import { addSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph } from './subGraphs.store';
-
-
+import { useGraph } from './GraphContext';
+ 
 const GraphControl: React.FC = () => {
-    const subGraphs = useSelector((state: RootState) => state.subGraphs.subGraphs);
-    const currentGraphName = useSelector((state: RootState) => state.subGraphs.currentGraphName);
-    const dispatch = useDispatch();
-
-
+    const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph } = useGraph();
+ 
     const handleAddGraph = () => {
         const newGraphName = prompt("Enter a new graph name:");
         if (newGraphName) {
-            dispatch(addSubGraph(newGraphName));
+            addSubGraph(newGraphName);
         }
     };
-
+ 
     const handleRenameGraph = () => {
         const newGraphName = prompt("Enter a new graph name:");
         if (newGraphName){
-            dispatch(renameSubGraph({
-                oldName: currentGraphName,
-                newName: newGraphName
-            }))
+            renameSubGraph(currentGraphName, newGraphName)
         }
     }
-
-
+ 
     const handleRemoveGraph = () => {
         const graphName = prompt("Enter the graph name to delete:");
         if (graphName && graphName !== "root") {
-            dispatch(removeSubGraph(graphName));
+            removeSubGraph(graphName);
         } else if (graphName === "root") {
             alert("cannot delete root");
         }
     };
-
+ 
     const handleSelectGraph = (graphName: string) => {
-        dispatch(setCurrentGraphName(graphName));
+        setCurrentGraphName(graphName);
     };
-
-
+ 
+ 
     return (
         <nav className="p-2 z-20">
-            SubGraph:
+             SubGraph:
             <select
                 className="ml-2 py-0 border rounded"
                 value={currentGraphName}
@@ -77,5 +67,5 @@ const GraphControl: React.FC = () => {
         </nav>
     );
 };
-
+ 
 export default GraphControl;
