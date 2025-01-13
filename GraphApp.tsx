@@ -1,4 +1,5 @@
 // Graph/GraphApp.tsx
+
 import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
 import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, NodeChange } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -100,11 +101,6 @@ const GraphApp: React.FC = () => {
         updateNodeData(currentGraphName, nodeId, newData)
     }, [updateNodeData, currentGraphName]);
 
-    const handleNodeResize = useCallback((nodeId: string, width: number, height: number) => {
-        updateNodeData(currentGraphName, nodeId, { width, height } )
-    }, [updateNodeData, currentGraphName])
-
-
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
         onContextMenu: handlePanelContextMenu,
@@ -129,8 +125,8 @@ const GraphApp: React.FC = () => {
     }, []);
     
     const nodeTypes = useMemo(() => ({
-        custom: (props: any) => <CustomNode {...props} onNodeDataChange={handleNodeDataChange} onResize={handleNodeResize} />,
-    }), [handleNodeDataChange, handleNodeResize]);
+        custom: (props: any) => <CustomNode {...props} onNodeDataChange={handleNodeDataChange}  />,
+    }), [handleNodeDataChange]);
 
 
 
