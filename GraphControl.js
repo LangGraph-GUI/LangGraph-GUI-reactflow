@@ -1,26 +1,25 @@
-// Panel.js
+// GraphControl.js
 
 import React, { useState, useEffect } from 'react';
 import { convertJsonToFlow, convertSubGraphToJson } from './JsonUtils';
-import { saveJsonToFile, loadJsonFromFile } from '../utils/saveIO';
+import { saveJsonToFile, loadJsonFromFile } from '../utils/jsonIO';
 import RunWindow from './RunWindow';
 import FileTransmit from './FileTransmit';
 import ConfigWindow from '../ConfigWindow';
-import { useGraphManager } from './GraphManager';
+import { useGraphContext } from './GraphContext';
 import { useSelector, useDispatch } from 'react-redux';
 import { addSubGraph, updateSubGraph, removeSubGraph, initSubGraphs, setSubGraphs } from './subGraphSlice.store';
 import Modal from './Modal';
 
-function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
+function GraphControl({ showConfig, setShowConfig, showRun, setShowRun }) {
     const {
         nodes,
         setNodes,
-        edges,
         setEdges,
         serialNumber,
         setSerialNumber,
         Clear,
-    } = useGraphManager();
+    } = useGraphContext();
     const dispatch = useDispatch();
     const subGraphs = useSelector((state) => state.subGraphs.subGraphs);
 
@@ -215,4 +214,4 @@ function Panel({ showConfig, setShowConfig, showRun, setShowRun }) {
     );
 }
 
-export default Panel;
+export default GraphControl;

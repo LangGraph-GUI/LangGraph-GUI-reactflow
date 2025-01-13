@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SERVER_URL from '../config';
-import { useGraphManager } from './GraphManager';
+import { useGraphContext } from './GraphContext';
 import { convertFlowToJson } from './JsonUtils';
 import ConfigManager from '../ConfigManager';
 
@@ -8,7 +8,7 @@ function RunWindow({ onClose }) {
     const [responseMessage, setResponseMessage] = useState('');
     const [isRunning, setIsRunning] = useState(false);
     const { username, llmModel, apiKey } = ConfigManager.getSettings();
-    const { nodes, serialNumber } = useGraphManager();
+    const { nodes, serialNumber } = useGraphContext();
      const isPollingRef = useRef(false)
 
     const saveGraphData = async () => {

@@ -1,13 +1,13 @@
 // Canvas.js
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { ReactFlow, MiniMap, Controls, Background, useReactFlow, Handle } from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import Node, { deleteNode } from './Node';
 import { createEdge, deleteEdge } from './Edge';
 import { createConditionEdge, deleteConditionEdge } from './ConditionEdge';
-import { useGraphManager } from './GraphManager';
-import Panel from './Panel';
+import { useGraphContext } from './GraphContext';
+import GraphControl from './GraphControl';
 
 const nodeTypes = { textUpdater: Node }; // Keep this, assuming your Node component handles it correctly
 
@@ -20,7 +20,7 @@ function Canvas() {
     setEdges,
     onEdgesChange,
     addNode,
-  } = useGraphManager();
+  } = useGraphContext();
 
   const [contextMenu, setContextMenu] = useState(null);
   const { screenToFlowPosition } = useReactFlow();
@@ -136,7 +136,7 @@ function Canvas() {
   return (
     <div className="h-screen w-full relative">
       <div className="absolute z-10 w-full">
-        <Panel 
+        <GraphControl 
             showConfig={showConfig} 
             setShowConfig={setShowConfig}
             showRun={showRun}
@@ -151,7 +151,7 @@ function Canvas() {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onNodeContextMenu={handleNodeContextMenu}
-          onPaneContextMenu={handlePanelContextMenu} // Changed from onPanelContextMenu
+          onPanelContextMenu={handlePanelContextMenu}
           onEdgeContextMenu={handleEdgeContextMenu}
           onClick={handleCloseContextMenu}
           onConnect={onConnect}

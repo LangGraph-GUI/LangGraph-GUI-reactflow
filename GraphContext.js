@@ -1,15 +1,15 @@
-// GraphManager.js
+// GraphContext.js
 
 import React, { createContext, useContext, useState } from 'react';
 import { useNodesState, useEdgesState} from '@xyflow/react';
 
-const GraphManagerContext = createContext(null);
+const GraphContextContext = createContext(null);
 
-export const useGraphManager = () => {
-  return useContext(GraphManagerContext);
+export const useGraphContext = () => {
+  return useContext(GraphContextContext);
 };
 
-export const GraphManagerProvider = ({ children }) => {
+export const GraphContextProvider = ({ children }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);  
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [serialNumber, setSerialNumber] = useState(0);
@@ -60,8 +60,8 @@ export const GraphManagerProvider = ({ children }) => {
   };
 
   return (
-    <GraphManagerContext.Provider value={value}>
+    <GraphContextContext.Provider value={value}>
       {children}
-    </GraphManagerContext.Provider>
+    </GraphContextContext.Provider>
   );
 };

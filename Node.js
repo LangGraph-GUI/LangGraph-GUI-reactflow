@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useState, useEffect, useRef } from 'react';
 import NodeLayout from './NodeLayout';
-import { useGraphManager } from './GraphManager';
+import { useGraphContext } from './GraphContext';
 
 // Helper functions to remove references
 export const removePrevs = (nodes, nodeId) => {
@@ -69,7 +69,7 @@ export const removeNexts = (nodes, nodeId) => {
 function Node({ data, isConnectable, id, prevs }) {
   const {
       setNodes,
-  } = useGraphManager();
+  } = useGraphContext();
   const [nodeData, setNodeData] = useState(data);
   const changeBuffer = useRef({});
 
