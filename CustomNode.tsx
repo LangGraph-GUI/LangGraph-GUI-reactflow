@@ -3,7 +3,7 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Handle, Position, NodeResizeControl } from '@xyflow/react';
 import ResizeIcon from './ResizeIcon';
-import { ReactNodeProps, ReactFlowNodeData } from './NodeData';
+import { ReactNodeProps, ReactFlowNodeEXT } from './NodeData';
 
 const handleStyle = {
     width: 6,
@@ -13,7 +13,7 @@ const handleStyle = {
 };
 
 const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConnectable = true, onNodeDataChange }) => {
-    const [localData, setLocalData] = useState<ReactFlowNodeData>(data);
+    const [localData, setLocalData] = useState<ReactFlowNodeEXT>(data);
     const dataRef = useRef(data);
 
     useEffect(() => {
@@ -30,7 +30,7 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConne
 
     const handleBlur = useCallback(() => {
         if (localData !== data) {
-             onNodeDataChange?.(id, localData);
+            onNodeDataChange?.(id, localData);
         }
     }, [id, localData, data, onNodeDataChange]);
 
