@@ -3,21 +3,7 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { Handle, Position, NodeResizeControl } from '@xyflow/react';
 import ResizeIcon from './ResizeIcon';
-
-interface CustomNodeProps {
-    id: string;
-    width: number;
-    height: number;
-    data: {
-        type: string;
-        name?: string;
-        tool?: string;
-        description?: string;
-        ext?: string;
-    };
-    isConnectable?: boolean;
-    onNodeDataChange?: (id: string, newData: any) => void;
-}
+import { ReactNodeProps, ReactFlowNodeData } from './NodeData';
 
 const handleStyle = {
     width: 6,
@@ -26,8 +12,8 @@ const handleStyle = {
     background: '#555',
 };
 
-const CustomNode: React.FC<CustomNodeProps> = ({ id, width, height, data, isConnectable = true, onNodeDataChange }) => {
-    const [localData, setLocalData] = useState(data);
+const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConnectable = true, onNodeDataChange }) => {
+    const [localData, setLocalData] = useState<ReactFlowNodeData>(data);
     const dataRef = useRef(data);
 
     useEffect(() => {
