@@ -1,7 +1,7 @@
 // Graph/GraphContext.tsx
 
 import React, { createContext, useState, useContext, useCallback, ReactNode } from 'react';
-import { Node, Edge, NodeChange, applyNodeChanges } from '@xyflow/react';
+import { Node, Edge, NodeChange, applyNodeChanges, EdgeChange, applyEdgeChanges } from '@xyflow/react';
 
 interface SubGraph {
     graphName: string;
@@ -20,6 +20,7 @@ interface GraphContextType {
     setCurrentGraphName: (graphName: string) => void;
     updateNodeData: (graphName: string, nodeId: string, newData: any) => void;
     handleNodesChange: (graphName: string, changes: NodeChange[]) => void;
+    handleEdgesChange: (graphName: string, changes: EdgeChange[]) => void;
 }
 
 const initialGraphData = {
@@ -123,6 +124,17 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         })
     }, []);
     
+    const handleEdgesChange = useCallback((graphName: string, changes: EdgeChange[]) => {
+        setSubGraphs((prevGraphs) => {
+            return prevGraphs.map(graph => {
+                if(graph.graphName === graphName){
+                    const updatedEdges = applyEdgeChanges(changes, graph.edges);
+                    return { ...graph, edges: updatedEdges };
+                }
+                return graph;
+            })
+        })
+    }, []);
     
     //Initialize root graph if not exist
     React.useEffect(()=>{
@@ -142,6 +154,7 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setCurrentGraphName,
         updateNodeData,
         handleNodesChange,
+        handleEdgesChange,
     };
 
     return (
