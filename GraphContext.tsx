@@ -14,7 +14,6 @@ interface GraphContextType {
     subGraphs: SubGraph[];
     currentGraphName: string;
     addSubGraph: (graphName: string) => void;
-    renameSubGraph: (oldName: string, newName: string) => void;
     updateSubGraph: (graphName: string, updatedGraph: SubGraph) => void;
     removeSubGraph: (graphName: string) => void;
     setCurrentGraphName: (graphName: string) => void;
@@ -52,27 +51,21 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     };
     
-    const renameSubGraph = (oldName: string, newName: string) => {
-        setSubGraphs(prevGraphs => {
-            return prevGraphs.map(graph => {
-                if (graph.graphName === oldName) {
-                    return { ...graph, graphName: newName };
-                }
-                return graph;
-            })
-        })
-        if(currentGraphName === oldName){
-            setCurrentGraphNameState(newName);
-        }
-    }
-
     const updateSubGraph = (graphName: string, updatedGraph: SubGraph) => {
+      
         setSubGraphs(prevGraphs => {
             const graphIndex = prevGraphs.findIndex(graph => graph.graphName === graphName);
+           
             if (graphIndex === -1) {
                 return [...prevGraphs, updatedGraph]
             } else {
-                return prevGraphs.map((graph, index) => index === graphIndex ? updatedGraph : graph)
+                
+                const updateGraph = prevGraphs.map((graph, index) => index === graphIndex ? updatedGraph : graph)
+                if(currentGraphName === graphName) {
+                 
+                    setCurrentGraphNameState(updatedGraph.graphName);
+                }
+                return updateGraph;
             }
         });
     };
@@ -148,7 +141,6 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         subGraphs,
         currentGraphName,
         addSubGraph,
-        renameSubGraph,
         updateSubGraph,
         removeSubGraph,
         setCurrentGraphName,

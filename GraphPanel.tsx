@@ -2,24 +2,27 @@
 
 import React from 'react';
 import { useGraph } from './GraphContext';
- 
+
 const GraphPanel: React.FC = () => {
-    const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph } = useGraph();
- 
+    const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, updateSubGraph } = useGraph();
+
     const handleAddGraph = () => {
         const newGraphName = prompt("Enter a new graph name:");
         if (newGraphName) {
             addSubGraph(newGraphName);
         }
     };
- 
+
     const handleRenameGraph = () => {
         const newGraphName = prompt("Enter a new graph name:");
-        if (newGraphName){
-            renameSubGraph(currentGraphName, newGraphName)
+        if (newGraphName && currentGraphName !== "root") {
+            const currentGraph = subGraphs.find(graph => graph.graphName === currentGraphName)
+            if(currentGraph){
+                updateSubGraph(currentGraphName, {...currentGraph, graphName: newGraphName})
+            }
         }
     }
- 
+
     const handleRemoveGraph = () => {
         const graphName = prompt("Enter the graph name to delete:");
         if (graphName && graphName !== "root") {
@@ -28,12 +31,12 @@ const GraphPanel: React.FC = () => {
             alert("cannot delete root");
         }
     };
- 
+
     const handleSelectGraph = (graphName: string) => {
         setCurrentGraphName(graphName);
     };
- 
- 
+
+
     return (
         <nav className="p-2 z-20">
              SubGraph:
@@ -67,5 +70,5 @@ const GraphPanel: React.FC = () => {
         </nav>
     );
 };
- 
+
 export default GraphPanel;

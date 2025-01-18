@@ -12,7 +12,7 @@ const handleStyle = {
     background: '#555',
 };
 
-const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConnectable = true, onNodeDataChange }) => {
+const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, onNodeDataChange }) => {
     const [localData, setLocalData] = useState<ReactFlowNodeEXT>(data);
     const dataRef = useRef(data);
 
@@ -52,7 +52,6 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConne
             <Handle
                 type="target"
                 position={Position.Left}
-                isConnectable={isConnectable}
                 className="absolute left-[-5px] top-1/2 -translate-y-1/2"
                 style={handleStyle}
             />
@@ -60,7 +59,6 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConne
                 type="source"
                 position={Position.Right}
                 id="a"
-                isConnectable={isConnectable}
                 className="absolute right-[-5px] top-1/2 -translate-y-1/2"
                 style={handleStyle}
             />
@@ -68,7 +66,6 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConne
                 type="source"
                 position={Position.Top}
                 id="true"
-                isConnectable={isConnectable}
                 className="absolute top-[-5px] left-1/2 -translate-x-1/2 bg-green-500"
                 style={handleStyle}
             />
@@ -76,7 +73,6 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, isConne
                 type="source"
                 position={Position.Bottom}
                 id="false"
-                isConnectable={isConnectable}
                 className="absolute bottom-[-5px] left-1/2 -translate-x-1/2 bg-red-500"
                 style={handleStyle}
             />

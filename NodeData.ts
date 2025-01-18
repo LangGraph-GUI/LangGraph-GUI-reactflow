@@ -19,7 +19,7 @@ export interface ReactFlowNodeEXT {
     nexts?: string[];
     true_next?: string | null | undefined;
     false_next?: string | null | undefined;
-    ext?: string;
+    ext?: string[];
 }
 
 export interface ReactNodeProps {
@@ -27,7 +27,6 @@ export interface ReactNodeProps {
     width: number;
     height: number;
     data: ReactFlowNodeEXT;
-    isConnectable?: boolean;
     onNodeDataChange?: (id: string, newData: ReactFlowNodeEXT) => void;
 }
 
