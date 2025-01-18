@@ -4,7 +4,7 @@ import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react'
 import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, NodeChange, Edge, EdgeChange, Connection } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useGraph } from './GraphContext';
-import GraphControl from './GraphControl';
+import GraphPanel from './GraphPanel';
 import './GraphApp.css';
 import CustomNode from './CustomNode';
 import CustomEdge from './CustomEdge';
@@ -196,7 +196,7 @@ const GraphApp: React.FC = () => {
         <div style={{ width: '100vw', height: '100vh' }}>
             {/*Assuming you have a div with ref for menuBar*/}
             <div ref={menuBarRef}>
-                <GraphControl />
+                <GraphPanel />
             </div> 
             
             <div style={{ height: `${canvasHeight}px` }} className="w-full">

@@ -1,9 +1,9 @@
-// Graph/GraphControl.tsx
+// Graph/GraphPanel.tsx
 
 import React from 'react';
 import { useGraph } from './GraphContext';
  
-const GraphControl: React.FC = () => {
+const GraphPanel: React.FC = () => {
     const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, renameSubGraph } = useGraph();
  
     const handleAddGraph = () => {
@@ -68,4 +68,4 @@ const GraphControl: React.FC = () => {
     );
 };
  
-export default GraphControl;
+export default GraphPanel;
