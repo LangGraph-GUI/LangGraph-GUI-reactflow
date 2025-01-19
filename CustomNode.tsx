@@ -6,8 +6,6 @@ import ResizeIcon from './ResizeIcon';
 import { ReactNodeProps, ReactFlowNodeEXT } from './NodeData';
 
 const handleStyle = {
-    width: 6,
-    height: 6,
     borderRadius: '50%',
     background: '#555',
 };
@@ -42,13 +40,6 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, onNodeD
             className={`border border-gray-500 p-2 rounded-xl bg-white overflow-visible relative flex flex-col text-black`}
             style={{ width: width, height: height }}
         >
-            <NodeResizeControl
-                className="absolute right-1 bottom-1"
-                minWidth={200}
-                minHeight={200}
-            >
-                <ResizeIcon />
-            </NodeResizeControl>
             <Handle
                 type="target"
                 position={Position.Left}
@@ -133,7 +124,7 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, onNodeD
                             </div>
                         )}
                         {['STEP', 'TOOL', 'CONDITION', 'INFO'].includes(localData.type) && (
-                            <div className="flex-grow">
+                            <div className="flex-grow relative">
                                 <label htmlFor={generateFieldId("description")} className="block text-xs">
                                     Description:
                                 </label>
@@ -143,7 +134,7 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, onNodeD
                                     value={localData.description || ""}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
-                                    className="nodrag w-full h-full resize-none bg-white border border-gray-300 rounded focus:outline-none"
+                                    className="nodrag w-full h-[calc(100%_-_20px)] absolute top-[20px] left-0 resize-none bg-white border border-gray-300 rounded focus:outline-none"
                                     autoComplete="off"
                                 />
                             </div>
@@ -151,6 +142,13 @@ const CustomNode: React.FC<ReactNodeProps> = ({ id, width, height, data, onNodeD
                     </>
                 )}
             </div>
+            <NodeResizeControl
+                className="absolute right-1 bottom-1"
+                minWidth={200}
+                minHeight={200}
+            >
+                <ResizeIcon />
+            </NodeResizeControl>
         </div>
     );
 };

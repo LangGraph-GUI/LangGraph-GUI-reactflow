@@ -54,7 +54,7 @@ export const useGraphActions = () => {
     }, [ currentGraph, updateSubGraph, currentGraphName]);
     
     
-     const handleDeleteNode = useCallback((contextMenu: ContextMenuProps | null, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>) => {
+    const handleDeleteNode = useCallback((contextMenu: ContextMenuProps | null, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>) => {
         if (contextMenu && contextMenu.nodeId) {
             const nodeToDelete = contextMenu.nodeId;
             const updatedNodes = currentGraph().nodes.filter((node) => node.id !== nodeToDelete);
@@ -84,7 +84,7 @@ export const useGraphActions = () => {
     }, [currentGraph, currentGraphName, updateSubGraph])
     
     const handlePanelContextMenu = useCallback((event: React.MouseEvent, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>) => {
-          event.preventDefault();
+        event.preventDefault();
         const target = event.target as HTMLElement;
         const nodeElement = target.closest('.react-flow__node') as HTMLElement;
         const edgeElement = target.closest('.react-flow__edge') as HTMLElement;
