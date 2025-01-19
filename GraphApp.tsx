@@ -8,14 +8,17 @@ import GraphPanel from './GraphPanel';
 import './GraphApp.css';
 import CustomNode from './CustomNode';
 import CustomEdge from './CustomEdge';
+import { useGraphActions } from './GraphActions';
 
 
 const GraphApp: React.FC = () => {
     const { subGraphs, currentGraphName, updateSubGraph, updateNodeData, handleNodesChange, handleEdgesChange} = useGraph();
-    const { screenToFlowPosition } = useReactFlow();
     const [contextMenu, setContextMenu] = useState<{mouseX: number, mouseY: number, nodeId: string | null, edgeId:string | null, type: 'panel' | 'node' | 'edge'} | null>(null);
     const [canvasHeight, setCanvasHeight] = useState<number>(window.innerHeight);
     const menuBarRef = useRef<HTMLDivElement>(null);  //ref for menu bar
+    const { screenToFlowPosition } = useReactFlow();
+
+    const { handleAddNode, handleDeleteNode, handleDeleteEdge, handlePanelContextMenu } = useGraphActions();
 
     const getGraph = useCallback((graphName: string) => {
         return subGraphs.find((graph) => graph.graphName === graphName);
@@ -31,97 +34,6 @@ const GraphApp: React.FC = () => {
     }, [currentGraphName, getGraph]);
 
 
-    const handleAddNode = useCallback(() => {
-        if (contextMenu && contextMenu.type === 'panel') {
-            const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
-            const newNodeId = String(currentGraph.serial_number + 1);
-            const newNode = {
-                id: newNodeId,
-                type: 'custom',
-                position: newPosition,
-                width: 150,
-                height: 200,
-                data: { type:"STEP" },
-            };
-            const updatedNodes = [...currentGraph.nodes, newNode]
-            updateSubGraph(currentGraphName,{
-                ...currentGraph,
-                nodes: updatedNodes,
-                serial_number: currentGraph.serial_number + 1,
-            }
-            );
-            setContextMenu(null);
-        }
-    }, [contextMenu, screenToFlowPosition, currentGraph, updateSubGraph, currentGraphName]);
-
-
-    const handleDeleteNode = useCallback(() => {
-        if (contextMenu && contextMenu.nodeId) {
-            const nodeToDelete = contextMenu.nodeId;
-            const updatedNodes = currentGraph.nodes.filter((node) => node.id !== nodeToDelete);
-            const updatedEdges = currentGraph.edges.filter((edge) => edge.source !== nodeToDelete && edge.target !== nodeToDelete);
-
-            updateSubGraph(currentGraphName,{
-                ...currentGraph,
-                nodes: updatedNodes,
-                edges: updatedEdges
-            });
-            setContextMenu(null);
-        }
-    }, [contextMenu, updateSubGraph, currentGraph, currentGraphName]);
-
-
-    const handleDeleteEdge = useCallback(()=>{
-        if(contextMenu && contextMenu.edgeId){
-            const edgeToDelete = contextMenu.edgeId;
-            const updatedEdges = currentGraph.edges.filter((edge) => edge.id !== edgeToDelete);
-
-            updateSubGraph(currentGraphName,{
-                ...currentGraph,
-                edges: updatedEdges
-            });
-            setContextMenu(null);
-        }
-    }, [contextMenu, currentGraph, currentGraphName, updateSubGraph])
-
-
-    const handlePanelContextMenu = useCallback((event: React.MouseEvent) => {
-        event.preventDefault();
-        const target = event.target as HTMLElement;
-        const nodeElement = target.closest('.react-flow__node') as HTMLElement;
-        const edgeElement = target.closest('.react-flow__edge') as HTMLElement;
-
-        if(nodeElement){
-            const nodeId = nodeElement.getAttribute("data-id")
-            setContextMenu({
-                mouseX: event.clientX,
-                mouseY: event.clientY,
-                nodeId: nodeId,
-                edgeId: null,
-                type: 'node'
-            });
-        }else if (edgeElement){
-            const edgeId = edgeElement.getAttribute('data-id');
-            setContextMenu({
-                mouseX: event.clientX,
-                mouseY: event.clientY,
-                nodeId: null,
-                edgeId: edgeId,
-                type: 'edge'
-            })
-        }
-        else{
-            setContextMenu({
-                mouseX: event.clientX,
-                mouseY: event.clientY,
-                nodeId: null,
-                edgeId: null,
-                type: 'panel'
-            });
-        }
-
-    }, []);
-    
     const handleCloseContextMenu = useCallback(() => {
         setContextMenu(null);
     }, []);
@@ -156,7 +68,7 @@ const GraphApp: React.FC = () => {
 
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
-        onContextMenu: handlePanelContextMenu,
+        onContextMenu: (event: React.MouseEvent)=> handlePanelContextMenu(event, setContextMenu),
         onClick: handleCloseContextMenu,
         onNodesChange: (changes: NodeChange[]) => handleNodesChange(currentGraphName, changes),
         onEdgesChange: (changes: EdgeChange[]) => handleEdgesChange(currentGraphName, changes),
@@ -168,7 +80,7 @@ const GraphApp: React.FC = () => {
         edgeTypes: {
             custom: CustomEdge,
         },
-    }),[handlePanelContextMenu,handleCloseContextMenu, handleNodesChange, handleEdgesChange, handleEdgeClick, handleConnect, currentGraphName])
+    }),[handlePanelContextMenu,handleCloseContextMenu, handleNodesChange, handleEdgesChange, handleEdgeClick, handleConnect, currentGraphName, setContextMenu])
 
     useEffect(() => {
         const handleResize = () => {
@@ -220,7 +132,7 @@ const GraphApp: React.FC = () => {
                             left: contextMenu.mouseX,
                         }}
                     >
-                        <button onClick={handleAddNode} className="block bg-green-500 hover:bg-green-700 text-white font-bold px-2 rounded">Add Node</button>
+                        <button onClick={()=> handleAddNode({contextMenu, setContextMenu, screenToFlowPosition})} className="block bg-green-500 hover:bg-green-700 text-white font-bold px-2 rounded">Add Node</button>
                         <button onClick={handleCloseContextMenu} className="block bg-gray-500 hover:bg-gray-700 text-white font-bold px-2 rounded">Cancel</button>
                     </div>
                 )}
@@ -233,7 +145,7 @@ const GraphApp: React.FC = () => {
                         }}
                     >
                         {/* <button onClick={handleAddEdge} className="block bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 rounded">Add Edge</button> */}
-                        <button onClick={handleDeleteNode} className="block bg-red-500 hover:bg-red-700 text-white font-bold px-2 rounded">Delete Node</button>
+                        <button onClick={()=> handleDeleteNode(contextMenu, setContextMenu)} className="block bg-red-500 hover:bg-red-700 text-white font-bold px-2 rounded">Delete Node</button>
                         <button onClick={handleCloseContextMenu} className="block bg-gray-500 hover:bg-gray-700 text-white font-bold px-2 rounded">Cancel</button>
                     </div>
                 )}
@@ -245,7 +157,7 @@ const GraphApp: React.FC = () => {
                             left: contextMenu.mouseX,
                         }}
                     >
-                        <button onClick={handleDeleteEdge} className="block bg-red-500 hover:bg-red-700 text-white font-bold px-2 rounded">Delete Edge</button>
+                        <button onClick={()=> handleDeleteEdge(contextMenu, setContextMenu)} className="block bg-red-500 hover:bg-red-700 text-white font-bold px-2 rounded">Delete Edge</button>
                         <button onClick={handleCloseContextMenu} className="block bg-gray-500 hover:bg-gray-700 text-white font-bold px-2 rounded">Cancel</button>
                     </div>
                 )}
