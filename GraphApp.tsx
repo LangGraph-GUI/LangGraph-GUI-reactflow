@@ -1,7 +1,7 @@
 // Graph/GraphApp.tsx
 
 import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
-import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, NodeChange, Edge, EdgeChange,  } from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, NodeChange, EdgeChange,  } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useGraph } from './GraphContext';
 import GraphPanel from './GraphPanel';
@@ -9,6 +9,7 @@ import './GraphApp.css';
 import CustomNode from './CustomNode';
 import CustomEdge from './CustomEdge';
 import { useGraphActions } from './GraphActions';
+import { Edge as ReactFlowEdge } from '@xyflow/react';
 
 
 const GraphApp: React.FC = () => {
@@ -34,7 +35,7 @@ const GraphApp: React.FC = () => {
         updateNodeData(currentGraphName, nodeId, newData)
     }, [updateNodeData, currentGraphName]);
 
-    const handleEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+    const handleEdgeClick = useCallback((event: React.MouseEvent, edge: ReactFlowEdge) => {
         event.preventDefault();
         event.stopPropagation();
         console.log("handleEdgeClick", edge)
@@ -49,7 +50,10 @@ const GraphApp: React.FC = () => {
         onEdgeClick: handleEdgeClick,
         onConnect: handleAddEdge,
         edgeTypes: {
-            custom: CustomEdge,
+            custom: (props) => {
+                const {sourceNode, targetNode} = props.data || {}
+                return <CustomEdge {...props} sourceNode={sourceNode} targetNode={targetNode} />
+            },
         },
     }),[handlePanelContextMenu,handleCloseContextMenu, handleNodesChange, handleEdgesChange, handleEdgeClick, handleAddEdge, currentGraphName, setContextMenu])
 

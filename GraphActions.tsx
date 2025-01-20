@@ -22,8 +22,8 @@ interface AddNodeProps {
 export const useGraphActions = () => {
     const { currentGraphName, updateSubGraph, getCurrentGraph } = useGraph();
     const currentGraph = useCallback(() => getCurrentGraph(), [getCurrentGraph]);
-    
-    const handleAddNode = useCallback(({contextMenu, setContextMenu, screenToFlowPosition} : AddNodeProps) => {
+
+    const handleAddNode = useCallback(({ contextMenu, setContextMenu, screenToFlowPosition }: AddNodeProps) => {
         if (contextMenu && contextMenu.type === 'panel' && screenToFlowPosition) {
             const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
             const newNodeId = String(currentGraph().serial_number + 1);
@@ -44,14 +44,38 @@ export const useGraphActions = () => {
             );
             setContextMenu(null);
         }
-    }, [ currentGraph, updateSubGraph, currentGraphName]);
-    
-    
+    }, [currentGraph, updateSubGraph, currentGraphName]);
+
+
     const handleDeleteNode = useCallback((contextMenu: ContextMenuProps | null, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>) => {
         if (contextMenu && contextMenu.nodeId) {
-            const nodeToDelete = contextMenu.nodeId;
-            const updatedNodes = currentGraph().nodes.filter((node) => node.id !== nodeToDelete);
-            const updatedEdges = currentGraph().edges.filter((edge) => edge.source !== nodeToDelete && edge.target !== nodeToDelete);
+            const nodeToDeleteId = contextMenu.nodeId;
+            let updatedNodes = currentGraph().nodes.filter((node) => node.id !== nodeToDeleteId)
+            const updatedEdges = currentGraph().edges.filter((edge) => edge.source !== nodeToDeleteId && edge.target !== nodeToDeleteId);
+
+
+            // Update prevs and nexts on deletion
+            updatedNodes = updatedNodes.map((node) => {
+                const updatedNode = { ...node };
+
+                //remove all next ref
+                if (Array.isArray(updatedNode.data.nexts) && updatedNode.data.nexts.includes(nodeToDeleteId)) {
+                    (updatedNode.data.nexts as string[]) = updatedNode.data.nexts.filter(next => next !== nodeToDeleteId)
+                }
+                if (updatedNode.data.true_next === nodeToDeleteId) {
+                    updatedNode.data.true_next = null
+                }
+                if (updatedNode.data.false_next === nodeToDeleteId) {
+                    updatedNode.data.false_next = null;
+                }
+
+                //remove all prev ref
+                if (Array.isArray(updatedNode.data.prevs) && updatedNode.data.prevs.includes(nodeToDeleteId)) {
+                    (updatedNode.data.prevs as string[]) = updatedNode.data.prevs.filter(prev => prev !== nodeToDeleteId);
+                }
+
+                return updatedNode
+            })
 
             updateSubGraph(currentGraphName, {
                 ...currentGraph(),
@@ -60,39 +84,107 @@ export const useGraphActions = () => {
             });
             setContextMenu(null);
         }
-    }, [ updateSubGraph, currentGraph, currentGraphName]);
+    }, [updateSubGraph, currentGraph, currentGraphName]);
 
 
-    const handleDeleteEdge = useCallback((contextMenu: ContextMenuProps | null, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>)=>{
-        if(contextMenu && contextMenu.edgeId){
-            const edgeToDelete = contextMenu.edgeId;
-            const updatedEdges = currentGraph().edges.filter((edge) => edge.id !== edgeToDelete);
+    const handleDeleteEdge = useCallback((contextMenu: ContextMenuProps | null, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>) => {
+        if (contextMenu && contextMenu.edgeId) {
+            const edgeToDeleteId = contextMenu.edgeId;
+            const edgeToDelete = currentGraph().edges.find((edge) => edge.id === edgeToDeleteId);
 
-            updateSubGraph(currentGraphName,{
+            if (!edgeToDelete) return;
+
+            const updatedEdges = currentGraph().edges.filter((edge) => edge.id !== edgeToDeleteId);
+            const updatedNodes = currentGraph().nodes.map(node => {
+                const updatedNode = { ...node };
+
+                if (updatedNode.id === edgeToDelete.source) {
+                    if (Array.isArray(updatedNode.data.nexts) && updatedNode.data.nexts.includes(edgeToDelete.target)){
+                        (updatedNode.data.nexts as string[]) = updatedNode.data.nexts.filter(next => next !== edgeToDelete.target)
+                    }
+                    if (updatedNode.data.true_next === edgeToDelete.target){
+                        updatedNode.data.true_next = null
+                    }
+                    if (updatedNode.data.false_next === edgeToDelete.target){
+                        updatedNode.data.false_next = null;
+                    }
+
+                } else if (updatedNode.id === edgeToDelete.target) {
+                    if (Array.isArray(updatedNode.data.prevs) && updatedNode.data.prevs.includes(edgeToDelete.source)){
+                        (updatedNode.data.prevs as string[]) = updatedNode.data.prevs.filter(prev => prev !== edgeToDelete.source)
+                    }
+
+                }
+
+                return updatedNode
+            })
+
+            updateSubGraph(currentGraphName, {
                 ...currentGraph(),
-                edges: updatedEdges
+                edges: updatedEdges,
+                nodes: updatedNodes
             });
             setContextMenu(null);
         }
     }, [currentGraph, currentGraphName, updateSubGraph])
 
     const handleAddEdge = useCallback((connection: Connection) => {
-        const newEdge : Edge = {
+        const sourceNode = currentGraph().nodes.find(node => node.id === connection.source)
+        const targetNode = currentGraph().nodes.find(node => node.id === connection.target)
+        if(!sourceNode || !targetNode) return;
+
+        const newEdge: Edge = {
             id: `${connection.source}-${connection.target}-${connection.sourceHandle || ""}`,
             source: connection.source,
             target: connection.target,
             sourceHandle: connection.sourceHandle,
-            type: "custom"
+            type: "custom",
+            data:{
+                sourceNode: connection.source,
+                targetNode: connection.target
+            }
         }
-        const updatedEdges = [...currentGraph().edges, newEdge];
+       
+        const updatedNodes = currentGraph().nodes.map(node =>{
+            const updatedNode = { ...node }
+            if (updatedNode.id === connection.source){
+                if(!updatedNode.data.nexts) {
+                    updatedNode.data.nexts = []
+                }
+                
+                if (! (updatedNode.data.nexts as string[]).includes(connection.target)){
+                    (updatedNode.data.nexts as string[]).push(connection.target);
+                }
+                if (connection.sourceHandle === 'true'){
+                    updatedNode.data.true_next = connection.target
+                }
+                if (connection.sourceHandle === 'false'){
+                    updatedNode.data.false_next = connection.target
+                }
 
-        updateSubGraph(currentGraphName,{
+            } else if(updatedNode.id === connection.target){
+                if(!updatedNode.data.prevs) {
+                    updatedNode.data.prevs = []
+                }
+                if (! (updatedNode.data.prevs as string[]).includes(connection.source)){
+                    (updatedNode.data.prevs as string[]).push(connection.source)
+                }
+
+            }
+
+            return updatedNode;
+        })
+
+
+        const updatedEdges = [...currentGraph().edges, newEdge];
+        updateSubGraph(currentGraphName, {
             ...currentGraph(),
-            edges: updatedEdges
+            edges: updatedEdges,
+            nodes: updatedNodes
         });
-        
-    },[currentGraph, currentGraphName, updateSubGraph])
-    
+
+    }, [currentGraph, currentGraphName, updateSubGraph])
+
     const handlePanelContextMenu = useCallback((event: React.MouseEvent, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>) => {
         event.preventDefault();
         const target = event.target as HTMLElement;
