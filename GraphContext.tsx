@@ -13,10 +13,11 @@ interface SubGraph {
 interface GraphContextType {
     subGraphs: SubGraph[];
     currentGraphName: string;
+    setCurrentGraphName: (graphName: string) => void;
+    getCurrentGraph: () => SubGraph;
     addSubGraph: (graphName: string) => void;
     updateSubGraph: (graphName: string, updatedGraph: SubGraph) => void;
     removeSubGraph: (graphName: string) => void;
-    setCurrentGraphName: (graphName: string) => void;
     updateNodeData: (graphName: string, nodeId: string, newData: any) => void;
     handleNodesChange: (graphName: string, changes: NodeChange[]) => void;
     handleEdgesChange: (graphName: string, changes: EdgeChange[]) => void;
@@ -34,7 +35,16 @@ const GraphContext = createContext<GraphContextType | undefined>(undefined);
 export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [subGraphs, setSubGraphs] = useState<SubGraph[]>([]);
     const [currentGraphName, setCurrentGraphNameState] = useState<string>("root");
-
+    
+    const getCurrentGraph = useCallback(():SubGraph => {
+        const currentGraph = subGraphs.find(graph => graph.graphName === currentGraphName);
+        return currentGraph || {
+            graphName: "root",
+            nodes: [],
+            edges: [],
+            serial_number: 0,
+        };
+    }, [subGraphs, currentGraphName]);
 
     const addSubGraph = (graphName: string) => {
         setSubGraphs(prevGraphs => {
@@ -128,7 +138,7 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             })
         })
     }, []);
-    
+
     //Initialize root graph if not exist
     React.useEffect(()=>{
         const rootGraphExist = subGraphs.find(graph => graph.graphName === "root")
@@ -140,10 +150,11 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const value = {
         subGraphs,
         currentGraphName,
+        setCurrentGraphName,
+        getCurrentGraph,
         addSubGraph,
         updateSubGraph,
         removeSubGraph,
-        setCurrentGraphName,
         updateNodeData,
         handleNodesChange,
         handleEdgesChange,

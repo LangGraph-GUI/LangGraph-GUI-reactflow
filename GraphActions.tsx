@@ -2,6 +2,8 @@
 
 import { useCallback } from 'react';
 import { useGraph } from './GraphContext';
+import { Edge, Connection } from '@xyflow/react';
+
 
 interface ContextMenuProps {
     mouseX: number;
@@ -16,19 +18,10 @@ interface AddNodeProps {
     setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>;
     screenToFlowPosition: ((pos: { x: number; y: number }) => { x: number; y: number }) | null;
 }
+
 export const useGraphActions = () => {
-    const { subGraphs, currentGraphName, updateSubGraph } = useGraph();
-
-    const getGraph = useCallback((graphName: string) => {
-        return subGraphs.find((graph) => graph.graphName === graphName);
-    }, [subGraphs]);
-
-    const currentGraph = useCallback(() => getGraph(currentGraphName) || {
-        graphName: "root",
-        nodes: [],
-        edges: [],
-        serial_number: 0,
-    }, [currentGraphName, getGraph]);
+    const { currentGraphName, updateSubGraph, getCurrentGraph } = useGraph();
+    const currentGraph = useCallback(() => getCurrentGraph(), [getCurrentGraph]);
     
     const handleAddNode = useCallback(({contextMenu, setContextMenu, screenToFlowPosition} : AddNodeProps) => {
         if (contextMenu && contextMenu.type === 'panel' && screenToFlowPosition) {
@@ -82,6 +75,23 @@ export const useGraphActions = () => {
             setContextMenu(null);
         }
     }, [currentGraph, currentGraphName, updateSubGraph])
+
+    const handleAddEdge = useCallback((connection: Connection) => {
+        const newEdge : Edge = {
+            id: `${connection.source}-${connection.target}-${connection.sourceHandle || ""}`,
+            source: connection.source,
+            target: connection.target,
+            sourceHandle: connection.sourceHandle,
+            type: "custom"
+        }
+        const updatedEdges = [...currentGraph().edges, newEdge];
+
+        updateSubGraph(currentGraphName,{
+            ...currentGraph(),
+            edges: updatedEdges
+        });
+        
+    },[currentGraph, currentGraphName, updateSubGraph])
     
     const handlePanelContextMenu = useCallback((event: React.MouseEvent, setContextMenu: React.Dispatch<React.SetStateAction<ContextMenuProps | null>>) => {
         event.preventDefault();
@@ -120,5 +130,5 @@ export const useGraphActions = () => {
 
     }, []);
 
-    return { handleAddNode, handleDeleteNode, handleDeleteEdge, handlePanelContextMenu }
+    return { handleAddNode, handleDeleteNode, handleDeleteEdge, handlePanelContextMenu, handleAddEdge }
 }

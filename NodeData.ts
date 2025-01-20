@@ -16,6 +16,7 @@ export interface ReactFlowNodeEXT {
     name?: string | undefined;
     description?: string | undefined;
     tool?: string | undefined;
+    prevs?: string[];
     nexts?: string[];
     true_next?: string | null | undefined;
     false_next?: string | null | undefined;
@@ -41,6 +42,7 @@ export const JsonToReactNode = (jsonData: JsonNodeData): ReactNodeProps => {
         nexts: rest.nexts || [],
         true_next: rest.true_next,
         false_next: rest.false_next,
+        prevs: [],
     };
 
     return {

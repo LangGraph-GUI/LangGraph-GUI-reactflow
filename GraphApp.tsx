@@ -1,7 +1,7 @@
 // Graph/GraphApp.tsx
 
 import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
-import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, NodeChange, Edge, EdgeChange, Connection } from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background, useReactFlow, ReactFlowProps, NodeChange, Edge, EdgeChange,  } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useGraph } from './GraphContext';
 import GraphPanel from './GraphPanel';
@@ -12,26 +12,17 @@ import { useGraphActions } from './GraphActions';
 
 
 const GraphApp: React.FC = () => {
-    const { subGraphs, currentGraphName, updateSubGraph, updateNodeData, handleNodesChange, handleEdgesChange} = useGraph();
+    const { currentGraphName, updateNodeData, handleNodesChange, handleEdgesChange, getCurrentGraph} = useGraph();
     const [contextMenu, setContextMenu] = useState<{mouseX: number, mouseY: number, nodeId: string | null, edgeId:string | null, type: 'panel' | 'node' | 'edge'} | null>(null);
     const [canvasHeight, setCanvasHeight] = useState<number>(window.innerHeight);
     const menuBarRef = useRef<HTMLDivElement>(null);  //ref for menu bar
     const { screenToFlowPosition } = useReactFlow();
 
-    const { handleAddNode, handleDeleteNode, handleDeleteEdge, handlePanelContextMenu } = useGraphActions();
+    const { handleAddNode, handleDeleteNode, handleDeleteEdge, handlePanelContextMenu, handleAddEdge } = useGraphActions();
 
-    const getGraph = useCallback((graphName: string) => {
-        return subGraphs.find((graph) => graph.graphName === graphName);
-    }, [subGraphs]);
 
-  
     // Always get the current graph, use initial graph data when current graph is not loaded
-    const currentGraph = useMemo(()=> getGraph(currentGraphName) || {
-        graphName: "root",
-        nodes: [],
-        edges: [],
-        serial_number: 0,
-    }, [currentGraphName, getGraph]);
+    const currentGraph = useMemo(()=> getCurrentGraph(), [getCurrentGraph]);
 
 
     const handleCloseContextMenu = useCallback(() => {
@@ -49,23 +40,6 @@ const GraphApp: React.FC = () => {
         console.log("handleEdgeClick", edge)
     }, [])
 
-    const handleConnect = useCallback((connection: Connection) => {
-        const newEdge : Edge = {
-            id: `${connection.source}-${connection.target}-${connection.sourceHandle || ""}`,
-            source: connection.source,
-            target: connection.target,
-            sourceHandle: connection.sourceHandle,
-            type: "custom"
-        }
-        const updatedEdges = [...currentGraph.edges, newEdge];
-
-        updateSubGraph(currentGraphName,{
-            ...currentGraph,
-            edges: updatedEdges
-        });
-        
-    },[currentGraph, currentGraphName, updateSubGraph])
-
 
     const reactFlowProps = useMemo<ReactFlowProps>(() => ({
         onContextMenu: (event: React.MouseEvent)=> handlePanelContextMenu(event, setContextMenu),
@@ -73,14 +47,11 @@ const GraphApp: React.FC = () => {
         onNodesChange: (changes: NodeChange[]) => handleNodesChange(currentGraphName, changes),
         onEdgesChange: (changes: EdgeChange[]) => handleEdgesChange(currentGraphName, changes),
         onEdgeClick: handleEdgeClick,
-        // onNodeClick: handleNodeClick,
-        onConnect: handleConnect,
-        // onNodeDragStart: handleCloseContextMenu,
-        // onNodeHandleClick: handleNodeHandleClick,
+        onConnect: handleAddEdge,
         edgeTypes: {
             custom: CustomEdge,
         },
-    }),[handlePanelContextMenu,handleCloseContextMenu, handleNodesChange, handleEdgesChange, handleEdgeClick, handleConnect, currentGraphName, setContextMenu])
+    }),[handlePanelContextMenu,handleCloseContextMenu, handleNodesChange, handleEdgesChange, handleEdgeClick, handleAddEdge, currentGraphName, setContextMenu])
 
     useEffect(() => {
         const handleResize = () => {

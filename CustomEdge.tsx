@@ -5,6 +5,8 @@ import { EdgeProps, getBezierPath, Position } from '@xyflow/react';
 
 interface CustomEdgeProps extends Omit<EdgeProps, 'markerEnd'> {
     sourcePosition: Position;
+    sourceNode:string;
+    targetNode:string;
 }
 
 const CustomEdge: React.FC<CustomEdgeProps> = ({
@@ -16,6 +18,8 @@ const CustomEdge: React.FC<CustomEdgeProps> = ({
     sourcePosition,
     targetPosition,
     style,
+    sourceNode,
+    targetNode
 }) => {
 
     const edgePathArray = getBezierPath({
@@ -77,6 +81,8 @@ const CustomEdge: React.FC<CustomEdgeProps> = ({
                 markerEnd={`url(#${markerEndId})`}
                 strokeLinecap="round"
                 data-edge-type={type}
+                data-source-node={sourceNode}
+                data-target-node={targetNode}
             />
         </>
     );
