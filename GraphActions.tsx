@@ -26,7 +26,7 @@ export const useGraphActions = () => {
     const handleAddNode = useCallback(({ contextMenu, setContextMenu, screenToFlowPosition }: AddNodeProps) => {
         if (contextMenu && contextMenu.type === 'panel' && screenToFlowPosition) {
             const newPosition = screenToFlowPosition({ x: contextMenu.mouseX, y: contextMenu.mouseY });
-            const newNodeId = String(currentGraph().serial_number + 1);
+            const newNodeId = String(currentGraph().serial_number);
             const newNode = {
                 id: newNodeId,
                 type: 'custom',

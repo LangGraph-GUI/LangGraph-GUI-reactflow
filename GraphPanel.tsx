@@ -2,7 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useGraph } from './GraphContext';
-import './GraphPanel.css'; // Import the CSS file
+import './GraphPanel.css';
+import { saveJsonToFile } from '../utils/JsonIO';
+import { graphContextToJson } from './JsonUtil';
+
 
 const GraphPanel: React.FC = () => {
     const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, updateSubGraph } = useGraph();
@@ -54,8 +57,11 @@ const GraphPanel: React.FC = () => {
         console.log("Load Graph clicked");
         closeMenus();
     };
+
     const handleSaveGraph = () => {
-        console.log("Save Graph clicked");
+        const { ...graphContext } = useGraph();
+        const jsonData = graphContextToJson(graphContext);
+        saveJsonToFile(jsonData);
         closeMenus();
     };
     // Placeholder functions for SubGraph menu
@@ -65,7 +71,7 @@ const GraphPanel: React.FC = () => {
     };
     const handleSaveSubGraph = () => {
         console.log("Save Subgraph clicked");
-        closeMenus();
+          
     };
 
     const toggleGraphMenu = () => {

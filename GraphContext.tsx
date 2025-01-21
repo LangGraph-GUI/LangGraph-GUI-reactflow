@@ -3,14 +3,14 @@
 import React, { createContext, useState, useContext, useCallback, ReactNode } from 'react';
 import { Node, Edge, NodeChange, applyNodeChanges, EdgeChange, applyEdgeChanges } from '@xyflow/react';
 
-interface SubGraph {
+export interface SubGraph {
     graphName: string;
     nodes: Node[];
     edges: Edge[];
     serial_number: number;
 }
 
-interface GraphContextType {
+export interface GraphContextType {
     subGraphs: SubGraph[];
     currentGraphName: string;
     setCurrentGraphName: (graphName: string) => void;
@@ -27,7 +27,7 @@ const initialGraphData = {
     graphName: "root",
     nodes: [],
     edges: [],
-    serial_number: 0,
+    serial_number: 1,
 };
 
 const GraphContext = createContext<GraphContextType | undefined>(undefined);
@@ -42,7 +42,7 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             graphName: "root",
             nodes: [],
             edges: [],
-            serial_number: 0,
+            serial_number: 1,
         };
     }, [subGraphs, currentGraphName]);
 
@@ -52,7 +52,7 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 graphName,
                 nodes: [],
                 edges: [],
-                serial_number: 0,
+                serial_number: 1,
             }]
             if(!currentGraphName) setCurrentGraphNameState(graphName);
             return newSubgraphs;
