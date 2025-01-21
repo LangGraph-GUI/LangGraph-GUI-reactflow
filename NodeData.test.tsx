@@ -5,7 +5,7 @@ import { render, screen, act } from '@testing-library/react';
 import { useGraph, GraphProvider, GraphContextType, SubGraph } from './GraphContext';
 import { describe, it, expect, vi } from 'vitest';
 import { Node } from '@xyflow/react';
-import { ReactToJsonNode, ReactNodeProps, ReactFlowNodeEXT } from './NodeData'; // Import ReactToJsonNode
+import { ReactToJsonNode, ReactNodeProps, ReactFlowNodeEXT } from './NodeData';
 
 
 interface TestComponentProps {
@@ -29,7 +29,7 @@ const TestComponent: React.FC<TestComponentProps> = ({ onContextChange }) => {
                     id: "1",
                     type: "custom",
                     position: { x: 100, y: 100 },
-                    data: { type: "START" }
+                    data: { type: "START" } // info is not provided here
                 } as Node,
                 {
                     id: "2",
@@ -37,8 +37,8 @@ const TestComponent: React.FC<TestComponentProps> = ({ onContextChange }) => {
                     position: { x: 200, y: 250 },
                     data: {
                         type: "INFO",
-                        description: "test for flow"
-                    }
+                        description: "test for flow",
+                    } // info is not provided here
                 } as Node,
                 {
                     id: "3",
@@ -47,8 +47,8 @@ const TestComponent: React.FC<TestComponentProps> = ({ onContextChange }) => {
                     data: {
                         type: "STEP",
                         description: "try use a tool",
-                        tool: "save_file"
-                    }
+                        tool: "save_file",
+                    } // info is not provided here
                 } as Node
             ],
             edges: [],
@@ -61,20 +61,22 @@ const TestComponent: React.FC<TestComponentProps> = ({ onContextChange }) => {
         if (graphContext.subGraphs.length > 0) {
             const testGraph = graphContext.subGraphs.find((graph) => graph.graphName === 'test');
             if (testGraph && testGraph.nodes.length > 0) {
-                const jsonNodes = testGraph.nodes.map(node =>{
-                    const nodeData = node.data as {type: string};
+                const jsonNodes = testGraph.nodes.map(node => {
+                    const nodeData = node.data as { type: string };
                     const reactNodeProps: ReactNodeProps = {
                         id: node.id,
                         width: 200, // Or use a constant
                         height: 200, // Or use a constant
+                        position: node.position,
                         data: {
-                             ...node.data,
-                            type: nodeData.type
-                         } as ReactFlowNodeEXT,
-                    };
-                    return ReactToJsonNode(reactNodeProps);
-                })
+                            ...node.data,
+                            type: nodeData.type,
 
+                        } as ReactFlowNodeEXT,
+                    };
+                    const jsonNode = ReactToJsonNode(reactNodeProps);
+                    return jsonNode;
+                })
                 console.log("JSON Nodes:", jsonNodes);
             }
         }
@@ -120,11 +122,11 @@ const TestWrapper: React.FC<TestWrapperProps> = ({ children }) => {
 
 describe('GraphContext', () => {
     it('should manage subgraphs correctly', async () => {
-         // Mock console.log to capture its calls
+        // Mock console.log to capture its calls
         const consoleLogMock = vi.spyOn(console, 'log');
 
         const handleContextChange = () => {
-           // graphContextValue = context; remove unused variable
+            // graphContextValue = context; remove unused variable
         };
 
         render(
@@ -141,7 +143,7 @@ describe('GraphContext', () => {
         const addNodesButton = screen.getByTestId("add-nodes-button");
         const convertToJsonButton = screen.getByTestId("convert-to-json-button");
 
-         
+
         // Add root and test subgraph
         await act(async () => {
             addRootButton.click();
@@ -152,7 +154,7 @@ describe('GraphContext', () => {
 
         let subGraphCountElement = screen.getByTestId("subgraph-count");
         expect(subGraphCountElement).toHaveTextContent("SubGraph Count: 2");
-        
+
         let hasRootElement = screen.getByTestId("has-root-graph");
         expect(hasRootElement).toHaveTextContent("Has Root Graph: true");
 
@@ -164,22 +166,22 @@ describe('GraphContext', () => {
             addNodesButton.click();
         });
 
-       
+
 
         const testGraphNodesElement = screen.getByTestId("test-graph-nodes");
         expect(testGraphNodesElement).toHaveTextContent("Test Graph Nodes: 3");
 
         // Convert first node to JSON
-         await act(async () => {
+        await act(async () => {
             convertToJsonButton.click();
         });
 
-         // Check if console.log was called with the correct JSON
+        // Check if console.log was called with the correct JSON
         expect(consoleLogMock).toHaveBeenCalled();
         const consoleArgs = consoleLogMock.mock.calls[0];
-         expect(consoleArgs[0]).toBe("JSON Nodes:");
-         const jsonOutput = consoleArgs[1]
-        expect(jsonOutput).toEqual( [
+        expect(consoleArgs[0]).toBe("JSON Nodes:");
+        const jsonOutput = consoleArgs[1];
+         expect(jsonOutput).toEqual([
             {
                 uniq_id: '1',
                 type: 'START',
@@ -188,9 +190,10 @@ describe('GraphContext', () => {
                 tool: undefined,
                 nexts: undefined,
                 true_next: undefined,
-                false_next: undefined
-              },
-              {
+                false_next: undefined,
+                ext: { pos_x: 100, pos_y: 100, width: 200, height: 200, info: undefined }
+            },
+            {
                 uniq_id: '2',
                 type: 'INFO',
                 name: undefined,
@@ -198,9 +201,10 @@ describe('GraphContext', () => {
                 tool: undefined,
                 nexts: undefined,
                 true_next: undefined,
-                false_next: undefined
-              },
-              {
+                false_next: undefined,
+                ext: { pos_x: 200, pos_y: 250, width: 200, height: 200, info: undefined }
+            },
+            {
                 uniq_id: '3',
                 type: 'STEP',
                 name: undefined,
@@ -208,10 +212,10 @@ describe('GraphContext', () => {
                 tool: 'save_file',
                 nexts: undefined,
                 true_next: undefined,
-                false_next: undefined
-              }
-          ]);
-
+                false_next: undefined,
+                ext: { pos_x: 300, pos_y: 330, width: 200, height: 200, info: undefined }
+            }
+        ]);
 
         // Try adding root again, should not change the count
         await act(async () => {
@@ -224,7 +228,7 @@ describe('GraphContext', () => {
         expect(hasRootElement).toHaveTextContent("Has Root Graph: true");
         hasTestElement = screen.getByTestId("has-test-graph");
         expect(hasTestElement).toHaveTextContent("Has Test Graph: true");
-         // Restore the original console.log
+        // Restore the original console.log
         consoleLogMock.mockRestore();
     });
 });
