@@ -181,39 +181,39 @@ describe('GraphContext', () => {
         const consoleArgs = consoleLogMock.mock.calls[0];
         expect(consoleArgs[0]).toBe("JSON Nodes:");
         const jsonOutput = consoleArgs[1];
-         expect(jsonOutput).toEqual([
+        expect(jsonOutput).toEqual([
             {
                 uniq_id: '1',
                 type: 'START',
-                name: undefined,
-                description: undefined,
-                tool: undefined,
-                nexts: undefined,
-                true_next: undefined,
-                false_next: undefined,
-                ext: { pos_x: 100, pos_y: 100, width: 200, height: 200, info: undefined }
+                name: "",
+                description: "",
+                tool: "",
+                nexts: [],
+                true_next: null,
+                false_next: null,
+                ext: { pos_x: 100, pos_y: 100, width: 200, height: 200, info: null }
             },
             {
                 uniq_id: '2',
                 type: 'INFO',
-                name: undefined,
+                name: "",
                 description: 'test for flow',
-                tool: undefined,
-                nexts: undefined,
-                true_next: undefined,
-                false_next: undefined,
-                ext: { pos_x: 200, pos_y: 250, width: 200, height: 200, info: undefined }
+                tool: "",
+                nexts: [],
+                true_next: null,
+                false_next: null,
+                ext: { pos_x: 200, pos_y: 250, width: 200, height: 200, info: null }
             },
             {
                 uniq_id: '3',
                 type: 'STEP',
-                name: undefined,
+                name: "",
                 description: 'try use a tool',
                 tool: 'save_file',
-                nexts: undefined,
-                true_next: undefined,
-                false_next: undefined,
-                ext: { pos_x: 300, pos_y: 330, width: 200, height: 200, info: undefined }
+                nexts: [],
+                true_next: null,
+                false_next: null,
+                ext: { pos_x: 300, pos_y: 330, width: 200, height: 200, info: null }
             }
         ]);
 
