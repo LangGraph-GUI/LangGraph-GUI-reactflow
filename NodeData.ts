@@ -1,16 +1,5 @@
 // NodeData.ts
 
-export interface JsonNodeData {
-    uniq_id?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    nexts?: string[] | undefined;
-    type?: string;
-    tool?: string | undefined;
-    true_next?: string | null | undefined;
-    false_next?: string | null | undefined;
-}
-
 export interface ReactFlowNodeEXT {
     type: string;
     name?: string | undefined;
@@ -31,6 +20,16 @@ export interface ReactNodeProps {
     onNodeDataChange?: (id: string, newData: ReactFlowNodeEXT) => void;
 }
 
+export interface JsonNodeData {
+    uniq_id?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    nexts?: string[] | undefined;
+    type?: string;
+    tool?: string | undefined;
+    true_next?: string | null | undefined;
+    false_next?: string | null | undefined;
+}
 
 export const JsonToReactNode = (jsonData: JsonNodeData): ReactNodeProps => {
     const { uniq_id, ...rest } = jsonData; // Extract uniq_id if present
