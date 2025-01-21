@@ -48,17 +48,20 @@ export const GraphProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const addSubGraph = (graphName: string) => {
         setSubGraphs(prevGraphs => {
-            const newSubgraphs = [...prevGraphs, {
-                graphName,
-                nodes: [],
-                edges: [],
-                serial_number: 1,
-            }]
-            if(!currentGraphName) setCurrentGraphNameState(graphName);
-            return newSubgraphs;
-           
+            const graphIndex = prevGraphs.findIndex(graph => graph.graphName === graphName);
+            if(graphIndex === -1){
+                const newSubgraphs = [...prevGraphs, {
+                    graphName,
+                    nodes: [],
+                    edges: [],
+                    serial_number: 1,
+                }]
+                if(!currentGraphName) setCurrentGraphNameState(graphName);
+                return newSubgraphs;
+            } else {
+                return prevGraphs;  // Do nothing, just return the previous state
+            }
         });
-
     };
     
     const updateSubGraph = (graphName: string, updatedGraph: SubGraph) => {
