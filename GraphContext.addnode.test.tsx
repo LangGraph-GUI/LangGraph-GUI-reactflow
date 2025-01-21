@@ -1,15 +1,26 @@
-// GraphContext.addnode.test.tsx
+// src/Graph/GraphContext.addnode.test.tsx
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { render, screen, act } from '@testing-library/react';
-import { useGraph, GraphProvider } from './GraphContext';
+import { useGraph, GraphProvider, GraphContextType, SubGraph } from './GraphContext';
 import { describe, it, expect } from 'vitest';
+import { Node } from '@xyflow/react';
 
-const TestComponent: React.FC = () => {
+interface TestComponentProps {
+    onContextChange?: (context: GraphContextType) => void;
+}
+
+const TestComponent: React.FC<TestComponentProps> = ({ onContextChange }) => {
     const graphContext = useGraph();
     
+    React.useEffect(() => {
+        if (onContextChange) {
+            onContextChange(graphContext);
+        }
+    }, [graphContext, onContextChange]);
+
     const addTestNodes = () => {
-        const testGraph = {
+        const testGraph: SubGraph = {
             graphName: "test",
             nodes: [
                 {
@@ -17,7 +28,7 @@ const TestComponent: React.FC = () => {
                     type: "custom",
                     position: { x: 100, y: 100 },
                     data: { type: "START" }
-                },
+                } as Node,
                 {
                     id: "2",
                     type: "custom",
@@ -26,7 +37,7 @@ const TestComponent: React.FC = () => {
                         type: "INFO",
                         description: "test for flow"
                     }
-                },
+                } as Node,
                 {
                     id: "3",
                     type: "custom",
@@ -36,7 +47,7 @@ const TestComponent: React.FC = () => {
                         description: "try use a tool",
                         tool: "save_file"
                     }
-                }
+                } as Node
             ],
             edges: [],
             serial_number: 4
@@ -69,12 +80,28 @@ const TestComponent: React.FC = () => {
     );
 };
 
+interface TestWrapperProps {
+    children: ReactNode;
+}
+
+const TestWrapper: React.FC<TestWrapperProps> = ({ children }) => {
+    return (
+        <GraphProvider>{children}</GraphProvider>
+    );
+};
+
 describe('GraphContext', () => {
     it('should manage subgraphs correctly', async () => {
+        let graphContextValue: GraphContextType | undefined;
+        
+        const handleContextChange = (context: GraphContextType) => {
+            graphContextValue = context;
+        };
+
         render(
-            <GraphProvider>
-                <TestComponent />
-            </GraphProvider>
+            <TestWrapper>
+                <TestComponent onContextChange={handleContextChange} />
+            </TestWrapper>
         );
 
         const testComponent = screen.getByTestId("test-component");
@@ -105,6 +132,16 @@ describe('GraphContext', () => {
         await act(async () => {
             addNodesButton.click();
         });
+
+        if (graphContextValue) {
+            const testGraph = graphContextValue.subGraphs.find((graph) => graph.graphName === 'test');
+            if (testGraph) {
+                console.log('Test Subgraph Nodes:', testGraph.nodes);
+                testGraph.nodes.forEach((node: Node, i: number) => {
+                    console.log(`Test Subgraph node index ${i}:`, node);
+                });
+            }
+        }
 
         const testGraphNodesElement = screen.getByTestId("test-graph-nodes");
         expect(testGraphNodesElement).toHaveTextContent("Test Graph Nodes: 3");
