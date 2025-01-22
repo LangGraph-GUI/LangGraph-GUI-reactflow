@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGraph } from './GraphContext';
 import './GraphPanel.css';
+import { allSubGraphsToJson } from './JsonUtil';
+import { saveJsonToFile } from '../utils/JsonIO';
 
 const GraphPanel: React.FC = () => {
     const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, updateSubGraph } = useGraph();
@@ -56,7 +58,8 @@ const GraphPanel: React.FC = () => {
     };
 
     const handleSaveGraph = () => {
-        console.log("Save Graph clicked");
+         const jsonData = allSubGraphsToJson(subGraphs);
+         saveJsonToFile(jsonData);
         closeMenus();
     };
     // Placeholder functions for SubGraph menu
