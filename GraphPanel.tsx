@@ -3,11 +3,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGraph } from './GraphContext';
 import './GraphPanel.css';
-import { allSubGraphsToJson } from './JsonUtil';
+import { allSubGraphsToJson, subGraphToJson } from './JsonUtil';
 import { saveJsonToFile } from '../utils/JsonIO';
 
 const GraphPanel: React.FC = () => {
-    const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, updateSubGraph } = useGraph();
+    const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, updateSubGraph, getCurrentGraph } = useGraph(); // Include getCurrentGraph
     const [isGraphMenuOpen, setIsGraphMenuOpen] = useState(false);
     const [isSubGraphMenuOpen, setIsSubGraphMenuOpen] = useState(false);
     const graphMenuRef = useRef<HTMLDivElement>(null);
@@ -58,8 +58,8 @@ const GraphPanel: React.FC = () => {
     };
 
     const handleSaveGraph = () => {
-         const jsonData = allSubGraphsToJson(subGraphs);
-         saveJsonToFile(jsonData);
+        const jsonData = allSubGraphsToJson(subGraphs);
+        saveJsonToFile("Save.json", jsonData);
         closeMenus();
     };
     // Placeholder functions for SubGraph menu
@@ -68,8 +68,11 @@ const GraphPanel: React.FC = () => {
         closeMenus();
     };
     const handleSaveSubGraph = () => {
-        console.log("Save Subgraph clicked");
-          
+        const currentGraph = getCurrentGraph();
+        const jsonData = subGraphToJson(currentGraph);
+        saveJsonToFile(`${currentGraph.graphName}.json`, jsonData);
+
+        closeMenus();
     };
 
     const toggleGraphMenu = () => {
