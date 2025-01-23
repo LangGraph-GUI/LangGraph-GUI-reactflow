@@ -39,26 +39,31 @@ export interface JsonNodeData {
     };
 }
 
+
 export const JsonToReactNode = (jsonData: JsonNodeData, position?: { x: number, y: number }): ReactNodeProps => {
     const { uniq_id, ext, ...rest } = jsonData;
 
     const reactNodeData: ReactFlowNodeEXT = {
-        type: rest.type || "STEP",  // Default type to "STEP"
+        type: rest.type || "STEP",
         name: rest.name,
         description: rest.description,
         tool: rest.tool,
         nexts: rest.nexts || [],
         true_next: rest.true_next,
         false_next: rest.false_next,
-        info: ext?.info === undefined ? null : ext.info,
+        info: ext?.info ?? null,
         prevs: [],
     };
 
     return {
         id: uniq_id,
-        width: ext?.width || 200,
-        height: ext?.height || 200,
-        position: position || { x: 0, y: 0 },
+        width: ext?.width ?? 200,
+        height: ext?.height ?? 200,
+        position: position || 
+        { 
+            x: ext?.pos_x || 0, 
+            y: ext?.pos_y || 0 
+        },
         data: reactNodeData,
     };
 };
