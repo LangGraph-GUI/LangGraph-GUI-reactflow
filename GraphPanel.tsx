@@ -3,8 +3,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGraph } from './GraphContext';
 import './GraphPanel.css';
-import { allSubGraphsToJson, subGraphToJson } from './JsonUtil';
-import { saveJsonToFile } from '../utils/JsonIO';
+import { allSubGraphsToJson, subGraphToJson, jsonToSubGraphs } from './JsonUtil';
+import { saveJsonToFile, loadJsonFromFile } from '../utils/JsonIO';
+import { SubGraph } from './GraphContext';
 
 const GraphPanel: React.FC = () => {
     const { subGraphs, currentGraphName, addSubGraph, removeSubGraph, setCurrentGraphName, updateSubGraph, getCurrentGraph } = useGraph(); // Include getCurrentGraph
@@ -46,14 +47,32 @@ const GraphPanel: React.FC = () => {
         setCurrentGraphName(graphName);
         closeMenus();
     };
-    // Placeholder functions for Graph menu
+
     const handleNewGraph = () => {
         console.log("New Graph clicked");
         closeMenus();
-
     };
-    const handleLoadGraph = () => {
-        console.log("Load Graph clicked");
+
+    const handleLoadGraph = async () => {
+        try {
+            const jsonData = await loadJsonFromFile();
+            if(jsonData){
+                const loadedSubGraphs: SubGraph[] = jsonToSubGraphs(jsonData);
+
+                //Clear subgraphs first
+                subGraphs.forEach(graph => {
+                    if(graph.graphName !== 'root') removeSubGraph(graph.graphName)
+                })
+                //Then load new subgraphs
+                loadedSubGraphs.forEach(subGraph => updateSubGraph(subGraph.graphName,subGraph))
+                
+                alert('Graph loaded successfully!');
+            }
+
+        } catch (error) {
+            console.error("Error loading graph:", error);
+            alert('Failed to load graph: ' + error);
+        }
         closeMenus();
     };
 
