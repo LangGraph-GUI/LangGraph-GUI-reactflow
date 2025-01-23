@@ -33,7 +33,10 @@ export const useGraphActions = () => {
                 position: newPosition,
                 width: 150,
                 height: 200,
-                data: { type: "STEP" },
+                data: {
+                    type: "STEP",
+                    name: `Node ${currentGraph().serial_number}`  // Set the default name here
+                },
             };
             const updatedNodes = [...currentGraph().nodes, newNode]
             updateSubGraph(currentGraphName, {
@@ -99,14 +102,15 @@ export const useGraphActions = () => {
                 const updatedNode = { ...node };
 
                 if (updatedNode.id === edgeToDelete.source) {
-                    if (Array.isArray(updatedNode.data.nexts) && updatedNode.data.nexts.includes(edgeToDelete.target)){
-                        (updatedNode.data.nexts as string[]) = updatedNode.data.nexts.filter(next => next !== edgeToDelete.target)
-                    }
-                    if (updatedNode.data.true_next === edgeToDelete.target){
-                        updatedNode.data.true_next = null
-                    }
-                    if (updatedNode.data.false_next === edgeToDelete.target){
+                    if (edgeToDelete.sourceHandle === 'true') {
+                        updatedNode.data.true_next = null;
+                    } else if (edgeToDelete.sourceHandle === 'false') {
                         updatedNode.data.false_next = null;
+                    } else {
+                        // general to nexts if it exists
+                        if (Array.isArray(updatedNode.data.nexts) && updatedNode.data.nexts.includes(edgeToDelete.target)){
+                            (updatedNode.data.nexts as string[]) = updatedNode.data.nexts.filter(next => next !== edgeToDelete.target)
+                        }
                     }
 
                 } else if (updatedNode.id === edgeToDelete.target) {
@@ -148,18 +152,19 @@ export const useGraphActions = () => {
         const updatedNodes = currentGraph().nodes.map(node =>{
             const updatedNode = { ...node }
             if (updatedNode.id === connection.source){
-                if(!updatedNode.data.nexts) {
-                    updatedNode.data.nexts = []
-                }
-                
-                if (! (updatedNode.data.nexts as string[]).includes(connection.target)){
-                    (updatedNode.data.nexts as string[]).push(connection.target);
-                }
-                if (connection.sourceHandle === 'true'){
+                if(connection.sourceHandle === 'true'){
                     updatedNode.data.true_next = connection.target
-                }
-                if (connection.sourceHandle === 'false'){
+                } else if (connection.sourceHandle === 'false'){
                     updatedNode.data.false_next = connection.target
+                } else {
+                    // General connection
+                    if(!updatedNode.data.nexts) {
+                        updatedNode.data.nexts = []
+                    }
+                    
+                    if (! (updatedNode.data.nexts as string[]).includes(connection.target)){
+                        (updatedNode.data.nexts as string[]).push(connection.target);
+                    }
                 }
 
             } else if(updatedNode.id === connection.target){

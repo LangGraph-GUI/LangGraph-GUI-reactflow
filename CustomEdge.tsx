@@ -5,8 +5,8 @@ import { EdgeProps, getBezierPath, Position } from '@xyflow/react';
 
 interface CustomEdgeProps extends Omit<EdgeProps, 'markerEnd'> {
     sourcePosition: Position;
-    sourceNode:string;
-    targetNode:string;
+    sourceNode: string;
+    targetNode: string;
 }
 
 const CustomEdge: React.FC<CustomEdgeProps> = ({
@@ -35,15 +35,11 @@ const CustomEdge: React.FC<CustomEdgeProps> = ({
     const edgePath = Array.isArray(edgePathArray) ? edgePathArray[0] : "";
 
     let strokeColor = 'gray';
-    let type: 'Condition' | 'General' = 'General';
-
 
     if (sourcePosition === Position.Top) {
         strokeColor = 'green';
-        type = 'Condition';
     } else if (sourcePosition === Position.Bottom) {
         strokeColor = 'red';
-        type = 'Condition';
     }
 
     const edgeStyle = {
@@ -80,7 +76,6 @@ const CustomEdge: React.FC<CustomEdgeProps> = ({
                 d={edgePath}
                 markerEnd={`url(#${markerEndId})`}
                 strokeLinecap="round"
-                data-edge-type={type}
                 data-source-node={sourceNode}
                 data-target-node={targetNode}
             />
