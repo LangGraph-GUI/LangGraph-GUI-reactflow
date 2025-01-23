@@ -2,7 +2,7 @@
 
 import { ReactToJsonNode, ReactNodeProps, ReactFlowNodeEXT, JsonToReactNode, JsonNodeData } from './NodeData';
 import { SubGraph } from './GraphContext';
-import { Node } from '@xyflow/react';
+import { Node, Edge } from '@xyflow/react';
 
 // Type guard to check if an object is a ReactFlowNodeEXT
 function isReactFlowNodeEXT(data: any): data is ReactFlowNodeEXT {
@@ -63,10 +63,63 @@ export const jsonToSubGraph = (json: JsonSubGraph): SubGraph => {
         };
     });
 
+    const edges: Edge[] = [];
+
+    nodes.forEach(node => {
+        const nodeData = node.data as any;
+
+
+        if (nodeData.nexts && Array.isArray(nodeData.nexts)) {
+            nodeData.nexts.forEach((nextId:string) => {
+                const newEdge: Edge = {
+                    id: `${node.id}-${nextId}`,
+                    source: node.id,
+                    target: nextId,
+                    type: 'custom',
+                    data: {
+                        sourceNode: node.id,
+                        targetNode: nextId
+                    }
+                };
+                edges.push(newEdge);
+            });
+        }
+
+        if (nodeData.true_next) {
+            const newEdge: Edge = {
+                id: `${node.id}-${nodeData.true_next}-true`,
+                source: node.id,
+                target: nodeData.true_next,
+                sourceHandle: 'true',
+                type: 'custom',
+                data: {
+                    sourceNode: node.id,
+                    targetNode: nodeData.true_next
+                }
+            };
+            edges.push(newEdge);
+        }
+        if (nodeData.false_next) {
+            const newEdge: Edge = {
+                id: `${node.id}-${nodeData.false_next}-false`,
+                source: node.id,
+                target: nodeData.false_next,
+                sourceHandle: 'false',
+                type: 'custom',
+                data: {
+                    sourceNode: node.id,
+                    targetNode: nodeData.false_next
+                }
+            };
+            edges.push(newEdge);
+        }
+    });
+
+
     return {
         graphName: json.name,
         nodes,
-        edges: [], // Edges need to be handled separately if required
+        edges,
         serial_number: json.serial_number,
     };
 };
