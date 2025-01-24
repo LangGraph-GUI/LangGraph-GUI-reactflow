@@ -81,15 +81,15 @@ describe('JsonUtil from JSON', () => {
                     target: '3',
                     type: 'custom',
                     data: { sourceNode: '2', targetNode: '3' }
-                  },
-                  {
+                },
+                {
                     id: '2-3-true',
                     source: '2',
                     target: '3',
                     type: 'custom',
                     sourceHandle: 'true',
                     data: { sourceNode: '2', targetNode: '3' }
-                  },
+                },
             ],
             serial_number: 3,
         };
@@ -158,15 +158,15 @@ describe('JsonUtil from JSON', () => {
                     target: '3',
                     type: 'custom',
                     data: { sourceNode: '2', targetNode: '3' }
-                  },
-                  {
+                },
+                {
                     id: '2-3-true',
                     source: '2',
                     target: '3',
                     type: 'custom',
-                     sourceHandle: 'true',
+                    sourceHandle: 'true',
                     data: { sourceNode: '2', targetNode: '3' }
-                  },
+                },
             ],
             serial_number: 3,
         };
