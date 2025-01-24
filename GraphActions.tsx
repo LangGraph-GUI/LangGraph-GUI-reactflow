@@ -133,9 +133,22 @@ export const useGraphActions = () => {
     }, [currentGraph, currentGraphName, updateSubGraph])
 
     const handleAddEdge = useCallback((connection: Connection) => {
-        const sourceNode = currentGraph().nodes.find(node => node.id === connection.source)
-        const targetNode = currentGraph().nodes.find(node => node.id === connection.target)
-        if(!sourceNode || !targetNode) return;
+       
+        const sourceNode = currentGraph().nodes.find(node => node.id === connection.source);
+        const targetNode = currentGraph().nodes.find(node => node.id === connection.target);
+      
+        if (!sourceNode || !targetNode) return;
+
+        // Check for existing connections on true/false handles
+        if (connection.sourceHandle === 'true' && sourceNode.data.true_next) {
+            alert("This node already has a 'true' connection. Please remove existing edge to create new one.");
+            return; // Reject new connection
+        }
+        if (connection.sourceHandle === 'false' && sourceNode.data.false_next) {
+            alert("This node already has a 'false' connection. Please remove existing edge to create new one.");
+            return; // Reject new connection
+        }
+
 
         const newEdge: Edge = {
             id: `${connection.source}-${connection.target}-${connection.sourceHandle || ""}`,
