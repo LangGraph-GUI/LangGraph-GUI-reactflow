@@ -74,7 +74,23 @@ describe('JsonUtil from JSON', () => {
                     data: { type: 'END', name: '', description: '', tool: '', nexts: [], true_next: null, false_next: null, info: null, prevs: [] }
                 }
             ],
-            edges: [],
+            edges: [
+                {
+                    id: '2-3',
+                    source: '2',
+                    target: '3',
+                    type: 'custom',
+                    data: { sourceNode: '2', targetNode: '3' }
+                  },
+                  {
+                    id: '2-3-true',
+                    source: '2',
+                    target: '3',
+                    type: 'custom',
+                    sourceHandle: 'true',
+                    data: { sourceNode: '2', targetNode: '3' }
+                  },
+            ],
             serial_number: 3,
         };
 
@@ -135,7 +151,23 @@ describe('JsonUtil from JSON', () => {
                     data: { type: 'STEP', name: '', description: '', tool: 'someTool', nexts: ['3'], true_next: '3', false_next: null, info: null, prevs: []}
                 },
             ],
-            edges: [],
+            edges: [
+                {
+                    id: '2-3',
+                    source: '2',
+                    target: '3',
+                    type: 'custom',
+                    data: { sourceNode: '2', targetNode: '3' }
+                  },
+                  {
+                    id: '2-3-true',
+                    source: '2',
+                    target: '3',
+                    type: 'custom',
+                     sourceHandle: 'true',
+                    data: { sourceNode: '2', targetNode: '3' }
+                  },
+            ],
             serial_number: 3,
         };
 
