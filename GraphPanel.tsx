@@ -126,7 +126,7 @@ const GraphPanel: React.FC = () => {
 
 
     return (
-        <nav className="p-2 z-20 flex items-center">
+        <nav className="p-2 z-20 flex items-center justify-center">
 
             <div className="relative mr-2" ref={graphMenuRef}>
                 <button className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-2 rounded inline-flex items-center"
