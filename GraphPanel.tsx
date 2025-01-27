@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGraph } from './GraphContext';
 import './GraphPanel.css';
-import { allSubGraphsToJson, subGraphToJson, jsonToSubGraphs } from './JsonUtil';
+import { allSubGraphsToJson, subGraphToJson, jsonToSubGraphs, jsonToSubGraph, JsonSubGraph } from './JsonUtil';
 import { saveJsonToFile, loadJsonFromFile } from '../utils/JsonIO';
 import { SubGraph } from './GraphContext';
 
@@ -82,8 +82,27 @@ const GraphPanel: React.FC = () => {
         closeMenus();
     };
     // Placeholder functions for SubGraph menu
-    const handleLoadSubGraph = () => {
-        console.log("Load Subgraph clicked");
+    const handleLoadSubGraph = async () => {
+        try {
+            const jsonData = await loadJsonFromFile();
+
+            if (jsonData) {
+
+                // Make sure jsonData is JsonSubGraph
+                if(!jsonData.name || !jsonData.nodes || !jsonData.serial_number){
+                    throw new Error("Invalid Json Format: must be JsonSubGraph")
+                }
+                 
+                const loadedSubGraph: SubGraph = jsonToSubGraph(jsonData as JsonSubGraph);
+                
+                updateSubGraph(loadedSubGraph.graphName, loadedSubGraph);
+
+                alert('Subgraph loaded successfully!');
+            }
+        } catch (error) {
+            console.error("Error loading subgraph:", error);
+            alert('Failed to load subgraph: ' + error);
+        }
         closeMenus();
     };
     const handleSaveSubGraph = () => {
