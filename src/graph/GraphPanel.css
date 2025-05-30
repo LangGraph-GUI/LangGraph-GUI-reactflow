@@ -1,0 +1,33 @@
+.dropdown-menu {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    color: black;
+  }
+  
+  .dropdown-menu button {
+      color: black; /* Ensure text is black */
+      background-color: white; /* set default background white */
+  }
+  
+  .dropdown-menu button:hover {
+    background-color: #f3f4f6; /* Tailwind's gray-100 */
+  }
+  
+  .dropdown-menu select {
+     color: black; /* Ensure text is black */
+     background-color: white; /* set default background white */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+  }
+  
+  .dropdown-menu select option {
+      color: black;
+      background-color: white;
+  }
+  
+  .dropdown-menu select option:hover {
+     background-color: #f3f4f6;
+  }

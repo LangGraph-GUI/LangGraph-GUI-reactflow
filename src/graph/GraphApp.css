@@ -1,0 +1,12 @@
+/* GraphApp.css */
+
+.react-flow__controls button svg {
+    fill: black;
+    stroke: black;
+}
+
+.react-flow__background {
+    background-color: #f0f0f0; /* Example: light gray background */
+    /* You can also add a background pattern: */
+    /* background-image: repeating-linear-gradient(45deg, #e0e0e0, #e0e0e0 10px, #f0f0f0 10px, #f0f0f0 20px); */
+}
