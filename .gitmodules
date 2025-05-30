@@ -1,3 +1,0 @@
-[submodule "src/Graph"]
-	path = src/Graph
-	url = ../LangGraph-GUI-reactflow
