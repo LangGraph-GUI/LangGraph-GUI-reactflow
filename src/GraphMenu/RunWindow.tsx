@@ -29,7 +29,7 @@ function RunWindow({ onClose }: RunWindowProps) {
 
             const jsonString = JSON.stringify(flowData, null, 2);
             const blob = new Blob([jsonString], { type: 'application/json' });
-            const graphFile = new File([blob], 'graph.json');
+            const graphFile = new File([blob], 'workflow.json');
 
 
             const formData = new FormData();

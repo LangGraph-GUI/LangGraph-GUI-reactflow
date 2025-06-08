@@ -6,7 +6,7 @@ type BackendUrlMode = 'development' | 'production';
 
 const backendUrls: Record<BackendUrlMode, string> = {
     development: 'http://localhost:5000',     // Docker Compose
-    production: 'http://backend.local'        // K8s preview
+    production: 'http://yourdomain.com'        // K8s deploy
 };
 
 export default defineConfig(({ mode }) => {
